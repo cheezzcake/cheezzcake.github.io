@@ -278,13 +278,13 @@ h1 span {
 .profile-hero {
   display: grid;
   justify-items: center;
-  gap: 24px;
-  padding: 58px 4px 34px;
+  gap: 20px;
+  padding: 58px 4px 46px;
   text-align: center;
 }
 
 .profile-photo {
-  width: min(52vw, 220px);
+  width: min(54vw, 230px);
   aspect-ratio: 1;
   border: 8px solid rgba(255, 253, 247, 0.86);
   border-radius: 50%;
@@ -304,16 +304,15 @@ h1 span {
 
 .profile-layout {
   display: grid;
-  gap: 12px;
+  width: min(100%, 860px);
+  gap: 0;
+  margin: 0 auto;
 }
 
 .profile-section {
-  padding: 22px;
-  border: 1px solid var(--line);
-  border-radius: 8px;
-  background: var(--paper);
-  box-shadow: 0 10px 28px rgba(51, 47, 35, 0.08);
-  backdrop-filter: blur(10px);
+  padding: 28px 0;
+  border-top: 1px solid var(--line);
+  background: transparent;
 }
 
 .section-kicker {
@@ -375,6 +374,14 @@ h1 span {
   gap: 6px;
 }
 
+.timeline small {
+  color: var(--green);
+  font-size: 0.72rem;
+  font-weight: 900;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
 .timeline strong,
 .info-row strong {
   font-size: 1rem;
@@ -391,17 +398,21 @@ h1 span {
 .tag-list {
   display: flex;
   flex-wrap: wrap;
-  gap: 10px;
+  gap: 0;
+  color: var(--green);
+  font-size: 0.98rem;
+  font-weight: 850;
+  line-height: 1.8;
 }
 
 .tag-list span {
-  padding: 9px 12px;
-  border: 1px solid rgba(73, 111, 87, 0.2);
-  border-radius: 999px;
-  color: var(--green);
-  background: rgba(255, 253, 247, 0.72);
-  font-size: 0.9rem;
-  font-weight: 800;
+  display: inline;
+}
+
+.tag-list span:not(:last-child)::after {
+  margin: 0 0.42em;
+  color: var(--muted);
+  content: "/";
 }
 
 .research-section p {
@@ -473,34 +484,18 @@ h1 span {
   }
 
   .profile-hero {
-    grid-template-columns: minmax(180px, 240px) minmax(0, 1fr);
-    justify-items: start;
-    align-items: center;
-    gap: 38px;
-    padding: 78px 8px 48px;
-    text-align: left;
-  }
-
-  .profile-heading {
-    justify-items: start;
+    justify-items: center;
+    gap: 24px;
+    padding: 82px 8px 58px;
+    text-align: center;
   }
 
   .profile-photo {
-    width: min(22vw, 240px);
-  }
-
-  .profile-layout {
-    grid-template-columns: 1.2fr 0.8fr;
-    align-items: start;
-    gap: 14px;
+    width: min(20vw, 250px);
   }
 
   .profile-section {
-    padding: 26px;
-  }
-
-  .profile-section:first-child {
-    grid-row: span 2;
+    padding: 34px 0;
   }
 
   .timeline div,
