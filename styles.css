@@ -302,6 +302,20 @@ h1 span {
   font-size: clamp(3.4rem, 16vw, 7rem);
 }
 
+.contact-link {
+  color: var(--muted);
+  font-size: 0.96rem;
+  font-weight: 750;
+  line-height: 1.4;
+  transition: color 160ms ease;
+}
+
+.contact-link:hover,
+.contact-link:focus-visible {
+  color: var(--green);
+  outline: none;
+}
+
 .profile-layout {
   display: grid;
   width: min(100%, 860px);
