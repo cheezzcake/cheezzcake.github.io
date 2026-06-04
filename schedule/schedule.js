@@ -1,15 +1,22 @@
 const STORAGE_KEY = "yixuan-schedule-v1";
 const TYPE_LABELS = {
-  study: "学习",
-  research: "科研",
-  deadline: "DDL",
+  math: "数学",
+  physics: "物理",
+  general: "综合",
   life: "生活",
+  exam: "考试",
+};
+const LEGACY_TYPE_MAP = {
+  study: "math",
+  research: "physics",
+  deadline: "exam",
 };
 
 const board = document.querySelector("#schedule-board");
 const addButton = document.querySelector(".add-task");
 const uploadButton = document.querySelector(".upload-json");
 const typeSelect = document.querySelector("#task-type");
+const filterSelect = document.querySelector("#task-filter");
 const trashZone = document.querySelector(".trash-zone");
 const syncStatus = document.querySelector(".sync-status");
 
@@ -57,6 +64,17 @@ function saveTasks() {
   localStorage.setItem(STORAGE_KEY, JSON.stringify(tasks));
 }
 
+function normalizeType(type) {
+  return TYPE_LABELS[type] ? type : LEGACY_TYPE_MAP[type] || "general";
+}
+
+function normalizeTasks() {
+  tasks = tasks.map((task) => ({
+    ...task,
+    type: normalizeType(task.type),
+  }));
+}
+
 function setStatus(message) {
   syncStatus.textContent = message;
 }
@@ -74,12 +92,14 @@ async function loadTasks() {
   const localTasks = loadLocalTasks();
   if (Array.isArray(localTasks)) {
     tasks = localTasks;
+    normalizeTasks();
     return;
   }
 
   try {
     const response = await fetch("./schedule.json", { cache: "no-store" });
     tasks = await response.json();
+    normalizeTasks();
   } catch {
     tasks = [];
   }
@@ -87,12 +107,13 @@ async function loadTasks() {
 
 function createTaskElement(task) {
   const taskEl = document.createElement("button");
-  taskEl.className = `task-block task-${task.type || "study"}`;
+  const type = normalizeType(task.type);
+  taskEl.className = `task-block task-${type}`;
   taskEl.type = "button";
   taskEl.draggable = true;
   taskEl.dataset.id = task.id;
   taskEl.textContent = task.title;
-  taskEl.title = `${TYPE_LABELS[task.type] || "日程"} · 双击编辑`;
+  taskEl.title = `${TYPE_LABELS[type]} · 双击编辑`;
 
   taskEl.addEventListener("dragstart", (event) => {
     event.dataTransfer.setData("text/plain", task.id);
@@ -135,7 +156,11 @@ function createDayCell(date) {
   const list = document.createElement("div");
   list.className = "task-list";
   tasks
-    .filter((task) => task.date === iso)
+    .filter((task) => {
+      const type = normalizeType(task.type);
+      const filter = filterSelect.value;
+      return task.date === iso && (filter === "all" || type === filter);
+    })
     .forEach((task) => list.append(createTaskElement(task)));
   cell.append(list);
 
@@ -274,6 +299,7 @@ async function uploadJsonToGitHub() {
 
 addButton.addEventListener("click", addTaskToToday);
 uploadButton.addEventListener("click", uploadJsonToGitHub);
+filterSelect.addEventListener("change", render);
 
 trashZone.addEventListener("dragover", (event) => {
   event.preventDefault();
