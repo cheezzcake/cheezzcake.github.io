@@ -1,4 +1,4 @@
-const STORAGE_KEY = "yixuan-schedule-v2";
+const STORAGE_KEY = "yixuan-schedule-v3";
 const TYPE_LABELS = {
   math: "数学",
   physics: "物理",
