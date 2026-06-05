@@ -52,7 +52,7 @@
     "id": "review-20260605-optics-interference-1",
     "title": "光学：干涉 1/2",
     "type": "physics",
-    "date": "2026-06-05",
+    "date": "2026-06-06",
     "completed": false
   },
   {
@@ -529,13 +529,6 @@
     "title": "理论物理基础II考试",
     "type": "exam",
     "date": "2026-06-24",
-    "completed": false
-  },
-  {
-    "id": "3db55dc2-6cbe-44e4-a757-94c7d8a9c346",
-    "title": "量子作业",
-    "type": "physics",
-    "date": "2026-06-06",
     "completed": false
   }
 ]
