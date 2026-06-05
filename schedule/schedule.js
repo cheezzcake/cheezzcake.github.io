@@ -72,6 +72,7 @@ function normalizeTasks() {
   tasks = tasks.map((task) => ({
     ...task,
     type: normalizeType(task.type),
+    completed: Boolean(task.completed),
   }));
 }
 
@@ -106,14 +107,29 @@ async function loadTasks() {
 }
 
 function createTaskElement(task) {
-  const taskEl = document.createElement("button");
+  const taskEl = document.createElement("label");
   const type = normalizeType(task.type);
   taskEl.className = `task-block task-${type}`;
-  taskEl.type = "button";
+  if (task.completed) taskEl.classList.add("is-complete");
   taskEl.draggable = true;
   taskEl.dataset.id = task.id;
-  taskEl.textContent = task.title;
   taskEl.title = `${TYPE_LABELS[type]} · 双击编辑`;
+
+  const checkbox = document.createElement("input");
+  checkbox.className = "task-check";
+  checkbox.type = "checkbox";
+  checkbox.checked = task.completed;
+  checkbox.setAttribute("aria-label", `完成${task.title}`);
+
+  const title = document.createElement("span");
+  title.className = "task-title";
+  title.textContent = task.title;
+
+  taskEl.append(checkbox, title);
+
+  checkbox.addEventListener("change", () => {
+    toggleTaskComplete(task.id, checkbox.checked);
+  });
 
   taskEl.addEventListener("dragstart", (event) => {
     event.dataTransfer.setData("text/plain", task.id);
@@ -125,7 +141,8 @@ function createTaskElement(task) {
     taskEl.classList.remove("is-dragging");
   });
 
-  taskEl.addEventListener("dblclick", () => {
+  taskEl.addEventListener("dblclick", (event) => {
+    if (event.target === checkbox) return;
     editTask(task.id);
   });
 
@@ -214,6 +231,7 @@ function addTaskToToday() {
     title: title.trim(),
     type: typeSelect.value,
     date: toISODate(new Date()),
+    completed: false,
   });
   saveTasks();
   render();
@@ -233,6 +251,14 @@ function moveTask(taskId, date) {
   const task = tasks.find((item) => item.id === taskId);
   if (!task) return;
   task.date = date;
+  saveTasks();
+  render();
+}
+
+function toggleTaskComplete(taskId, completed) {
+  const task = tasks.find((item) => item.id === taskId);
+  if (!task) return;
+  task.completed = completed;
   saveTasks();
   render();
 }

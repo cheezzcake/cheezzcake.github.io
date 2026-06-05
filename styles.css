@@ -751,6 +751,10 @@ h1 span {
 }
 
 .task-block {
+  display: grid;
+  grid-template-columns: 18px minmax(0, 1fr);
+  align-items: start;
+  gap: 8px;
   width: 100%;
   cursor: grab;
   border: 1px solid rgba(31, 33, 29, 0.08);
@@ -767,6 +771,59 @@ h1 span {
   transition:
     opacity 160ms ease,
     transform 160ms ease;
+}
+
+.task-check {
+  position: relative;
+  width: 17px;
+  height: 17px;
+  margin: 1px 0 0;
+  border: 1.5px solid currentColor;
+  border-radius: 50%;
+  appearance: none;
+  background: rgba(255, 253, 247, 0.7);
+  color: inherit;
+  cursor: pointer;
+  opacity: 0.78;
+}
+
+.task-check::after {
+  position: absolute;
+  top: 2px;
+  left: 5px;
+  width: 4px;
+  height: 8px;
+  border-right: 2px solid currentColor;
+  border-bottom: 2px solid currentColor;
+  content: "";
+  opacity: 0;
+  transform: rotate(45deg) scale(0.72);
+  transition:
+    opacity 140ms ease,
+    transform 140ms ease;
+}
+
+.task-check:checked::after {
+  opacity: 1;
+  transform: rotate(45deg) scale(1);
+}
+
+.task-check:focus-visible {
+  outline: 2px solid rgba(31, 33, 29, 0.2);
+  outline-offset: 2px;
+}
+
+.task-title {
+  min-width: 0;
+}
+
+.task-block.is-complete {
+  opacity: 0.6;
+}
+
+.task-block.is-complete .task-title {
+  text-decoration: line-through;
+  text-decoration-thickness: 1.5px;
 }
 
 .task-block:active {
