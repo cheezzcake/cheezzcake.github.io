@@ -12,6 +12,7 @@ const LEGACY_TYPE_MAP = {
   deadline: "exam",
 };
 const DEFAULT_TASK_COMPLETED = false;
+const SCHEDULE_JSON_PATH = "./schedule.json";
 
 const board = document.querySelector("#schedule-board");
 const addButton = document.querySelector(".add-task");
@@ -69,12 +70,16 @@ function normalizeType(type) {
   return TYPE_LABELS[type] ? type : LEGACY_TYPE_MAP[type] || "general";
 }
 
-function normalizeTasks() {
-  tasks = tasks.map((task) => ({
+function normalizeTaskList(taskList) {
+  return taskList.map((task) => ({
     ...task,
     type: normalizeType(task.type),
     completed: task.completed === true,
   }));
+}
+
+function normalizeTasks() {
+  tasks = normalizeTaskList(tasks);
 }
 
 function setStatus(message) {
@@ -92,20 +97,21 @@ function encodeBase64(text) {
 
 async function loadTasks() {
   const localTasks = loadLocalTasks();
-  if (Array.isArray(localTasks)) {
-    tasks = localTasks;
-    normalizeTasks();
-    saveTasks();
-    return;
-  }
 
   try {
-    const response = await fetch("./schedule.json", { cache: "no-store" });
-    tasks = await response.json();
-    normalizeTasks();
+    const cacheBuster = encodeURIComponent(Date.now().toString());
+    const response = await fetch(`${SCHEDULE_JSON_PATH}?v=${cacheBuster}`, {
+      cache: "no-store",
+      headers: {
+        "Cache-Control": "no-cache",
+      },
+    });
+    if (!response.ok) throw new Error("无法读取远端 JSON");
+    tasks = normalizeTaskList(await response.json());
     saveTasks();
+    return;
   } catch {
-    tasks = [];
+    tasks = Array.isArray(localTasks) ? normalizeTaskList(localTasks) : [];
   }
 }
 
