@@ -22,7 +22,7 @@
   },
   {
     "id": "review-20260605-ai-cnn-3d",
-    "title": "AI引论：多智能体",
+    "title": "AI引论：CNN、三维重建",
     "type": "general",
     "date": "2026-06-05",
     "completed": false
@@ -59,7 +59,7 @@
     "id": "review-20260606-history-lecture-1",
     "title": "史纲：看课 1/8",
     "type": "general",
-    "date": "2026-06-18",
+    "date": "2026-06-06",
     "completed": false
   },
   {
@@ -211,7 +211,7 @@
   },
   {
     "id": "review-20260609-ai-multi-agent",
-    "title": "AI引论：CNN、三维重建",
+    "title": "AI引论：多智能体",
     "type": "general",
     "date": "2026-06-11",
     "completed": false
@@ -529,13 +529,6 @@
     "title": "理论物理基础II考试",
     "type": "exam",
     "date": "2026-06-24",
-    "completed": false
-  },
-  {
-    "id": "3db55dc2-6cbe-44e4-a757-94c7d8a9c346",
-    "title": "量子作业",
-    "type": "physics",
-    "date": "2026-06-06",
     "completed": false
   }
 ]
