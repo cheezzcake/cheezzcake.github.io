@@ -11,6 +11,7 @@ const LEGACY_TYPE_MAP = {
   research: "physics",
   deadline: "exam",
 };
+const DEFAULT_TASK_COMPLETED = false;
 
 const board = document.querySelector("#schedule-board");
 const addButton = document.querySelector(".add-task");
@@ -72,7 +73,7 @@ function normalizeTasks() {
   tasks = tasks.map((task) => ({
     ...task,
     type: normalizeType(task.type),
-    completed: Boolean(task.completed),
+    completed: task.completed === true,
   }));
 }
 
@@ -94,6 +95,7 @@ async function loadTasks() {
   if (Array.isArray(localTasks)) {
     tasks = localTasks;
     normalizeTasks();
+    saveTasks();
     return;
   }
 
@@ -101,6 +103,7 @@ async function loadTasks() {
     const response = await fetch("./schedule.json", { cache: "no-store" });
     tasks = await response.json();
     normalizeTasks();
+    saveTasks();
   } catch {
     tasks = [];
   }
@@ -231,7 +234,7 @@ function addTaskToToday() {
     title: title.trim(),
     type: typeSelect.value,
     date: toISODate(new Date()),
-    completed: false,
+    completed: DEFAULT_TASK_COMPLETED,
   });
   saveTasks();
   render();
