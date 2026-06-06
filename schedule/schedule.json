@@ -50,7 +50,7 @@
   },
   {
     "id": "review-20260605-optics-interference-1",
-    "title": "光学：干涉 1/2",
+    "title": "光学：衍射 1/2",
     "type": "physics",
     "date": "2026-06-06",
     "completed": false
@@ -78,7 +78,7 @@
   },
   {
     "id": "review-20260606-optics-interference-2",
-    "title": "光学：干涉 2/2",
+    "title": "光学：衍射 2/2",
     "type": "physics",
     "date": "2026-06-06",
     "completed": false
@@ -113,7 +113,7 @@
   },
   {
     "id": "review-20260607-optics-diffraction-1",
-    "title": "光学：衍射 1/2",
+    "title": "光学：干涉 1/2",
     "type": "physics",
     "date": "2026-06-08",
     "completed": false
@@ -162,7 +162,7 @@
   },
   {
     "id": "review-20260607-optics-diffraction-2",
-    "title": "光学：衍射 2/2",
+    "title": "光学：干涉 2/2",
     "type": "physics",
     "date": "2026-06-09",
     "completed": false
