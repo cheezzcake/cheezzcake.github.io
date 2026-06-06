@@ -46,14 +46,14 @@
     "title": "AI引论：NLP 1/2",
     "type": "general",
     "date": "2026-06-06",
-    "completed": false
+    "completed": true
   },
   {
     "id": "review-20260605-optics-interference-1",
     "title": "光学：衍射 1/2",
     "type": "physics",
     "date": "2026-06-06",
-    "completed": false
+    "completed": true
   },
   {
     "id": "review-20260606-history-lecture-1",
@@ -81,7 +81,7 @@
     "title": "光学：衍射 2/2",
     "type": "physics",
     "date": "2026-06-06",
-    "completed": false
+    "completed": true
   },
   {
     "id": "review-20260607-math-general-series-2",
