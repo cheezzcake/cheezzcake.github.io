@@ -18,7 +18,7 @@
     "title": "大学国文复习",
     "type": "general",
     "date": "2026-06-07",
-    "completed": false
+    "completed": true
   },
   {
     "id": "review-20260605-ai-cnn-3d",
@@ -87,7 +87,7 @@
     "id": "review-20260607-math-general-series-2",
     "title": "高等数学：一般项级数 2/2",
     "type": "math",
-    "date": "2026-06-07",
+    "date": "2026-06-08",
     "completed": false
   },
   {
@@ -129,7 +129,7 @@
     "id": "review-20260608-history-lecture-3",
     "title": "史纲：看课 3/8",
     "type": "general",
-    "date": "2026-06-08",
+    "date": "2026-06-14",
     "completed": false
   },
   {
