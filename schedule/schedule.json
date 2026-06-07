@@ -95,14 +95,14 @@
     "title": "史纲：看课 2/8",
     "type": "general",
     "date": "2026-06-07",
-    "completed": false
+    "completed": true
   },
   {
     "id": "review-20260610-thermal-transport",
     "title": "热学：热二",
     "type": "physics",
     "date": "2026-06-07",
-    "completed": false
+    "completed": true
   },
   {
     "id": "review-20260607-ai-kg",
