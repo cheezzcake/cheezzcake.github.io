@@ -74,7 +74,7 @@
     "title": "AI引论：NLP 2/2",
     "type": "general",
     "date": "2026-06-07",
-    "completed": false
+    "completed": true
   },
   {
     "id": "review-20260606-optics-interference-2",
@@ -99,14 +99,14 @@
   },
   {
     "id": "review-20260610-thermal-transport",
-    "title": "热学：输运",
+    "title": "热学：热二",
     "type": "physics",
     "date": "2026-06-07",
     "completed": false
   },
   {
     "id": "review-20260607-ai-kg",
-    "title": "AI引论：知识图谱",
+    "title": "AI引论：知识图谱、Transformer",
     "type": "general",
     "date": "2026-06-08",
     "completed": false
@@ -134,7 +134,7 @@
   },
   {
     "id": "review-20260611-thermal-second-law",
-    "title": "热学：热二",
+    "title": "热学：输运",
     "type": "physics",
     "date": "2026-06-08",
     "completed": false
