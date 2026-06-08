@@ -113,7 +113,7 @@
   },
   {
     "id": "review-20260607-optics-diffraction-1",
-    "title": "光学：干涉 1/2",
+    "title": "光学：傅里叶光学1/2",
     "type": "physics",
     "date": "2026-06-08",
     "completed": false
@@ -183,7 +183,7 @@
   },
   {
     "id": "review-20260608-optics-fourier-1",
-    "title": "光学：傅里叶光学 1/2",
+    "title": "光学：干涉 1/2",
     "type": "physics",
     "date": "2026-06-10",
     "completed": false
