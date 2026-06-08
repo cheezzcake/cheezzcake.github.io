@@ -136,7 +136,7 @@
     "id": "review-20260611-thermal-second-law",
     "title": "热学：输运",
     "type": "physics",
-    "date": "2026-06-08",
+    "date": "2026-06-10",
     "completed": false
   },
   {
@@ -199,8 +199,8 @@
     "id": "review-20260612-thermal-phase-transition",
     "title": "热学：相变",
     "type": "physics",
-    "date": "2026-06-10",
-    "completed": false
+    "date": "2026-06-08",
+    "completed": true
   },
   {
     "id": "review-20260610-history-lecture-4",
