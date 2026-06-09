@@ -151,7 +151,7 @@
     "title": "大学国文考试",
     "type": "exam",
     "date": "2026-06-09",
-    "completed": false
+    "completed": true
   },
   {
     "id": "review-20260608-ai-robot",
