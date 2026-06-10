@@ -178,7 +178,7 @@
     "id": "review-20260608-ai-rl",
     "title": "AI引论：强化学习",
     "type": "general",
-    "date": "2026-06-10",
+    "date": "2026-06-11",
     "completed": false
   },
   {
@@ -192,7 +192,7 @@
     "id": "review-20260610-math-power-series",
     "title": "高等数学：幂级数",
     "type": "math",
-    "date": "2026-06-10",
+    "date": "2026-06-11",
     "completed": false
   },
   {
@@ -227,7 +227,7 @@
     "id": "review-20260611-math-taylor",
     "title": "高等数学：泰勒展开",
     "type": "math",
-    "date": "2026-06-11",
+    "date": "2026-06-10",
     "completed": false
   },
   {
@@ -241,7 +241,7 @@
     "id": "review-20260611-history-lecture-5",
     "title": "史纲：看课 5/8",
     "type": "general",
-    "date": "2026-06-11",
+    "date": "2026-06-12",
     "completed": false
   },
   {
@@ -276,7 +276,7 @@
     "id": "review-20260611-theory-schrodinger",
     "title": "理论物理基础II：薛定谔方程",
     "type": "physics",
-    "date": "2026-06-12",
+    "date": "2026-06-14",
     "completed": false
   },
   {
@@ -530,5 +530,19 @@
     "type": "exam",
     "date": "2026-06-24",
     "completed": false
+  },
+  {
+    "id": "237a2cb0-e922-41ce-b357-83ad11a82bfa",
+    "title": "CTAW Final Draft",
+    "type": "general",
+    "date": "2026-06-10",
+    "completed": true
+  },
+  {
+    "id": "c1d69195-2bea-4dd1-bc0c-2b8105eefd47",
+    "title": "高数12.3",
+    "type": "math",
+    "date": "2026-06-10",
+    "completed": true
   }
 ]
