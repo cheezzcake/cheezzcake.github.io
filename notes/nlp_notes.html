@@ -140,9 +140,143 @@
     color:var(--dim);
     font-size:13px;
   }
+  .rnn-flow {
+    border:1px solid var(--line);
+    background:var(--panel);
+    border-radius:8px;
+    padding:16px;
+    margin:16px 0;
+    overflow-x:auto;
+  }
+  .rnn-lane {
+    display:grid;
+    grid-template-columns:repeat(5, minmax(96px, 1fr));
+    gap:10px;
+    min-width:620px;
+    align-items:center;
+  }
+  .rnn-token, .rnn-state {
+    border:1px solid var(--line);
+    border-radius:6px;
+    padding:9px 10px;
+    text-align:center;
+    font-family:'Space Mono', monospace;
+  }
+  .rnn-token {
+    background:var(--panel-2);
+    color:var(--ink);
+  }
+  .rnn-state {
+    background:rgba(88,166,255,.08);
+    color:var(--blue);
+    position:relative;
+  }
+  .rnn-state::after {
+    content:"";
+    position:absolute;
+    top:50%;
+    right:-11px;
+    width:10px;
+    border-top:1px solid var(--blue);
+  }
+  .rnn-state:last-child::after { display:none; }
+  .rnn-arrow {
+    color:var(--dim);
+    text-align:center;
+    font-family:'Space Mono', monospace;
+    font-size:20px;
+    line-height:1;
+  }
+  .rnn-caption {
+    color:var(--dim);
+    font-size:13px;
+    margin-top:12px;
+  }
+  .transformer-lab {
+    border:1px solid var(--line);
+    background:var(--panel);
+    border-radius:8px;
+    padding:16px;
+    margin:18px 0;
+  }
+  .transformer-stage {
+    display:grid;
+    grid-template-columns:minmax(96px, .8fr) minmax(180px, 1.25fr) minmax(180px, 1.25fr) minmax(96px, .8fr);
+    gap:12px;
+    align-items:center;
+  }
+  .tf-node {
+    border:1px solid var(--line);
+    background:var(--panel-2);
+    color:var(--ink);
+    border-radius:8px;
+    padding:12px;
+    text-align:center;
+    font-family:'Space Mono', 'Noto Sans SC', monospace;
+    cursor:pointer;
+    min-height:58px;
+  }
+  .tf-node:hover, .tf-node.is-active {
+    border-color:var(--amber);
+    color:var(--amber);
+    background:rgba(255,180,84,.07);
+  }
+  .tf-stack {
+    border:1px dashed var(--line);
+    border-radius:8px;
+    padding:12px;
+    background:rgba(13,17,23,.42);
+  }
+  .tf-stack-title {
+    color:var(--dim);
+    font-family:'Space Mono', monospace;
+    font-size:12px;
+    margin-bottom:8px;
+    text-align:center;
+  }
+  .tf-block {
+    display:grid;
+    gap:8px;
+  }
+  .tf-line {
+    height:1px;
+    background:linear-gradient(90deg, transparent, var(--blue), transparent);
+    position:relative;
+  }
+  .tf-line::after {
+    content:">";
+    color:var(--blue);
+    position:absolute;
+    right:-3px;
+    top:-12px;
+    font-family:'Space Mono', monospace;
+  }
+  .tf-cross {
+    color:var(--purple);
+    font-family:'Space Mono', monospace;
+    font-size:12px;
+    text-align:center;
+    margin:10px 0;
+  }
+  .tf-detail {
+    border:1px solid var(--line);
+    border-radius:8px;
+    background:#0a0d12;
+    padding:14px;
+    margin-top:14px;
+  }
+  .tf-detail h4 {
+    color:var(--amber);
+    margin:0 0 8px;
+    font-family:'Space Mono','Noto Sans SC',monospace;
+  }
+  .tf-detail p {
+    color:var(--ink);
+    margin:0;
+  }
   mjx-container { max-width:100%; }
   mjx-container[jax="SVG"][display="true"] { display:block; overflow-x:auto; overflow-y:hidden; }
-  @media (max-width:940px) { .layout{grid-template-columns:1fr;} aside{position:static;height:auto;border-right:0;border-bottom:1px solid var(--line);} main{padding:20px;} .grid-2,.note-strip,.grammar-grid{grid-template-columns:1fr;} h1{font-size:26px;} }
+  @media (max-width:940px) { .layout{grid-template-columns:1fr;} aside{position:static;height:auto;border-right:0;border-bottom:1px solid var(--line);} main{padding:20px;} .grid-2,.note-strip,.grammar-grid,.transformer-stage{grid-template-columns:1fr;} h1{font-size:26px;} .tf-line{height:28px;width:1px;margin:0 auto;background:linear-gradient(180deg, transparent, var(--blue), transparent);} .tf-line::after{content:"v";right:-5px;top:16px;} }
 </style>
 <script>
   window.MathJax = { tex: { inlineMath: [['$', '$'], ['\\(', '\\)']] }, svg: { fontCache: 'global' } };
@@ -160,6 +294,53 @@
           panels.forEach((panel) => {
             panel.hidden = panel.dataset.panel !== phase;
           });
+        });
+      });
+    });
+    const transformerNotes = {
+      input: {
+        title: 'INPUT',
+        copy: 'Tokens are embedded as vectors and added to positional encodings, because attention alone does not know word order.'
+      },
+      encoder: {
+        title: 'Encoder',
+        copy: 'An encoder layer reads the whole input sequence and writes contextual representations. Stacking encoders lets each token gather richer context.'
+      },
+      'self-attention': {
+        title: 'Self-Attention',
+        copy: 'Self-attention lets every input token compare itself with every other input token through Query, Key and Value projections, then mix information by learned attention weights.'
+      },
+      'feed-forward': {
+        title: 'Feed Forward',
+        copy: 'The feed-forward network is applied to each position independently. It expands and compresses the representation, adding nonlinear processing after attention.'
+      },
+      decoder: {
+        title: 'Decoder',
+        copy: 'A decoder layer generates the output sequence. It first looks at previous output tokens, then reads encoder memory, then uses a feed-forward block.'
+      },
+      'masked-attention': {
+        title: 'Masked Self-Attention',
+        copy: 'The mask prevents a decoder position from seeing future tokens. During training, each word can only depend on earlier words.'
+      },
+      'cross-attention': {
+        title: 'Encoder-Decoder Attention',
+        copy: 'Cross-attention uses decoder states as Query, and encoder outputs as Key/Value memory. This is the line from every Encoder layer output into the Decoder stack.'
+      },
+      output: {
+        title: 'OUTPUT',
+        copy: 'The final decoder vector is projected to a vocabulary distribution. The highest-probability token becomes the next generated word.'
+      }
+    };
+    document.querySelectorAll('[data-transformer-lab]').forEach((lab) => {
+      const title = lab.querySelector('[data-tf-title]');
+      const copy = lab.querySelector('[data-tf-copy]');
+      lab.querySelectorAll('[data-tf]').forEach((node) => {
+        node.addEventListener('click', () => {
+          const note = transformerNotes[node.dataset.tf];
+          if (!note) return;
+          lab.querySelectorAll('[data-tf]').forEach((item) => item.classList.toggle('is-active', item === node));
+          title.textContent = note.title;
+          copy.textContent = note.copy;
         });
       });
     });
@@ -299,11 +480,44 @@ Loss: Cross entropy loss (one hot)</code></pre><h3 id="distance">Distance</h3><p
 h_t &amp;= \tanh( \mathbf{W}_h h_{t-1} + \mathbf{W}_x x_t )\\
 y_t &amp;= f(h_t)
 \end{aligned}
-\]</span></p><p><strong>Flowchart:</strong></p><pre><code>  I   love    RNN   Theory  &lt;EOS&gt;
-  ^    ^       ^      ^       ^
- [h1]-[h2]----[h3]---[h4]----[h5] 
-  |    |       |      |       |
-&lt;BOS&gt;  I    love    RNN   Theory</code></pre><p>Drawback: Hard to capture long-term dependencies. (gradient vanish/explode)</p><h3 id="optimized-rnn-lstm-gru">Optimized RNN: LSTM / GRU</h3><p><img src="assets/nlp/image.png" alt="LSTM Model" width="60%"></p><p><strong>Simple explanation of the LSTM figure:</strong></p><p>Compared with a vanilla RNN, LSTM adds a long-term memory path, usually called the <strong>cell state</strong> <span class="math inline">\(c_t\)</span>, which is the upper horizontal line passing through the cell.</p><p>Inside the current cell, the yellow <span class="math inline">\(\sigma\)</span> blocks are gates:</p><ul><li><strong>Forget gate</strong>: decides how much old memory should be kept.</li><li><strong>Input gate</strong>: decides how much new information from <span class="math inline">\(x_t\)</span> should be written into memory.</li><li><strong>Output gate</strong>: decides how much memory should be exposed as the hidden state <span class="math inline">\(h_t\)</span>.</li></ul><p>The pink <span class="math inline">\(\times\)</span> circles mean element-wise multiplication, <strong>so a gate can control how much information passes through</strong>. The pink <span class="math inline">\(+\)</span> circle means adding the kept old memory and the new candidate memory together. The <code>tanh</code> block creates candidate information and also squashes the updated memory before producing the output.</p><p>In formula form, the picture corresponds to:</p><p><span class="math display">\[
+\]</span></p><p><strong>Flowchart:</strong></p><div class="rnn-flow" aria-label="RNN sequence flow">
+  <div class="rnn-lane">
+    <div class="rnn-token">x1<br>&lt;BOS&gt;</div>
+    <div class="rnn-token">x2<br>I</div>
+    <div class="rnn-token">x3<br>love</div>
+    <div class="rnn-token">x4<br>RNN</div>
+    <div class="rnn-token">x5<br>Theory</div>
+  </div>
+  <div class="rnn-lane" aria-hidden="true">
+    <div class="rnn-arrow">v</div>
+    <div class="rnn-arrow">v</div>
+    <div class="rnn-arrow">v</div>
+    <div class="rnn-arrow">v</div>
+    <div class="rnn-arrow">v</div>
+  </div>
+  <div class="rnn-lane">
+    <div class="rnn-state">h1</div>
+    <div class="rnn-state">h2</div>
+    <div class="rnn-state">h3</div>
+    <div class="rnn-state">h4</div>
+    <div class="rnn-state">h5</div>
+  </div>
+  <div class="rnn-lane" aria-hidden="true">
+    <div class="rnn-arrow">v</div>
+    <div class="rnn-arrow">v</div>
+    <div class="rnn-arrow">v</div>
+    <div class="rnn-arrow">v</div>
+    <div class="rnn-arrow">v</div>
+  </div>
+  <div class="rnn-lane">
+    <div class="rnn-token">y1<br>I</div>
+    <div class="rnn-token">y2<br>love</div>
+    <div class="rnn-token">y3<br>RNN</div>
+    <div class="rnn-token">y4<br>Theory</div>
+    <div class="rnn-token">y5<br>&lt;EOS&gt;</div>
+  </div>
+  <p class="rnn-caption">Each hidden state carries information from the left. The next-token target is shifted by one position, so input &lt;BOS&gt; predicts I, input I predicts love, and so on.</p>
+</div><p>Drawback: Hard to capture long-term dependencies. (gradient vanish/explode)</p><h3 id="optimized-rnn-lstm-gru">Optimized RNN: LSTM / GRU</h3><p><img src="assets/nlp/image.png" alt="LSTM Model" width="60%"></p><p><strong>Simple explanation of the LSTM figure:</strong></p><p>Compared with a vanilla RNN, LSTM adds a long-term memory path, usually called the <strong>cell state</strong> <span class="math inline">\(c_t\)</span>, which is the upper horizontal line passing through the cell.</p><p>Inside the current cell, the yellow <span class="math inline">\(\sigma\)</span> blocks are gates:</p><ul><li><strong>Forget gate</strong>: decides how much old memory should be kept.</li><li><strong>Input gate</strong>: decides how much new information from <span class="math inline">\(x_t\)</span> should be written into memory.</li><li><strong>Output gate</strong>: decides how much memory should be exposed as the hidden state <span class="math inline">\(h_t\)</span>.</li></ul><p>The pink <span class="math inline">\(\times\)</span> circles mean element-wise multiplication, <strong>so a gate can control how much information passes through</strong>. The pink <span class="math inline">\(+\)</span> circle means adding the kept old memory and the new candidate memory together. The <code>tanh</code> block creates candidate information and also squashes the updated memory before producing the output.</p><p>In formula form, the picture corresponds to:</p><p><span class="math display">\[
 \begin{aligned}
 f_t &amp;= \sigma(W_f[h_{t-1}, x_t] + b_f) &amp;&amp; \text{forget gate(rate)}\\
 i_t &amp;= \sigma(W_i[h_{t-1}, x_t] + b_i) &amp;&amp; \text{input gate}\\
@@ -312,7 +526,39 @@ c_t &amp;= f_t \odot c_{t-1} + i_t \odot \tilde{c}_t &amp;&amp; \text{updated me
 o_t &amp;= \sigma(W_o[h_{t-1}, x_t] + b_o) &amp;&amp; \text{output gate}\\
 h_t &amp;= o_t \odot \tanh(c_t) &amp;&amp; \text{hidden state output}
 \end{aligned}
-\]</span></p><h3 id="sota-transformer">SOTA: Transformer</h3><p>Attention is all you need</p><p><img src="assets/nlp/image-1.png" alt="LSTM Model" width="60%"></p><p><img src="assets/nlp/image-2.png" alt="alt text" style="zoom:33%;" /></p><h4 id="self-attention-layer">Self Attention Layer</h4><p>Let’s assume that the French sentence “Je suis étudiant” has <span class="math inline">\(u\)</span> words, and the English sentence “I am a student” has <span class="math inline">\(v\)</span> words. So the input matrix is <span class="math inline">\(\mathbf{X}^{u\times d}\)</span>, and the output sentence is <span class="math inline">\(\mathbf{Y}^{v\times d}\)</span>, where <span class="math inline">\(d\)</span> is the dimension of the word embedding vector.</p><p>3 Matrix: Query <span class="math inline">\(\mathbf{Q}^{d\times k}\)</span>, Key <span class="math inline">\(\mathbf{K}^{d\times k}\)</span>, Value<span class="math inline">\(\mathbf{V}^{d\times l}\)</span>. The value vector is <span class="math inline">\(l\)</span> dimensional.</p><p>The self attention layer impose an transformation that <span class="math display">\[
+\]</span></p><h3 id="sota-transformer">SOTA: Transformer</h3><p>Attention is all you need</p>
+<div class="transformer-lab" data-transformer-lab>
+  <div class="transformer-stage" aria-label="Transformer topology">
+    <button class="tf-node is-active" type="button" data-tf="input">INPUT<br><span class="mini-note">tokens + positions</span></button>
+    <div class="tf-line" aria-hidden="true"></div>
+    <div class="tf-stack">
+      <div class="tf-stack-title">Encoder Stack x N</div>
+      <div class="tf-block">
+        <button class="tf-node" type="button" data-tf="encoder">Encoder</button>
+        <button class="tf-node" type="button" data-tf="self-attention">Self-Attention</button>
+        <button class="tf-node" type="button" data-tf="feed-forward">Feed Forward</button>
+      </div>
+    </div>
+    <div class="tf-line" aria-hidden="true"></div>
+    <div class="tf-stack">
+      <div class="tf-stack-title">Decoder Stack x N</div>
+      <div class="tf-block">
+        <button class="tf-node" type="button" data-tf="decoder">Decoder</button>
+        <button class="tf-node" type="button" data-tf="masked-attention">Masked Self-Attention</button>
+        <button class="tf-node" type="button" data-tf="cross-attention">Encoder-Decoder Attention</button>
+        <button class="tf-node" type="button" data-tf="feed-forward">Feed Forward</button>
+      </div>
+    </div>
+    <div class="tf-line" aria-hidden="true"></div>
+    <button class="tf-node" type="button" data-tf="output">OUTPUT<br><span class="mini-note">next token distribution</span></button>
+  </div>
+  <div class="tf-cross">Encoder outputs are copied as Key/Value memory into every Decoder layer.</div>
+  <div class="tf-detail" aria-live="polite">
+    <h4 data-tf-title>INPUT</h4>
+    <p data-tf-copy>Tokens are embedded as vectors and added to positional encodings, because attention alone does not know word order.</p>
+  </div>
+</div>
+<h4 id="self-attention-layer">Self Attention Layer</h4><p>Let’s assume that the French sentence “Je suis étudiant” has <span class="math inline">\(u\)</span> words, and the English sentence “I am a student” has <span class="math inline">\(v\)</span> words. So the input matrix is <span class="math inline">\(\mathbf{X}^{u\times d}\)</span>, and the output sentence is <span class="math inline">\(\mathbf{Y}^{v\times d}\)</span>, where <span class="math inline">\(d\)</span> is the dimension of the word embedding vector.</p><p>3 Matrix: Query <span class="math inline">\(\mathbf{Q}^{d\times k}\)</span>, Key <span class="math inline">\(\mathbf{K}^{d\times k}\)</span>, Value<span class="math inline">\(\mathbf{V}^{d\times l}\)</span>. The value vector is <span class="math inline">\(l\)</span> dimensional.</p><p>The self attention layer impose an transformation that <span class="math display">\[
 \mathbf{X}^{u\times d} \rightarrow\text{Self Attention Layer}\rightarrow\text{softmax}(\frac{\mathbf{XQK}^\mathrm{T}\mathbf{X}^\mathrm{T}}{\sqrt{d_k}})\mathbf{XV} 
 \]</span></p><p>where the <span class="math inline">\((\mathbf{XQK}^T\mathbf{X}^T)^{u\times u}\)</span> reflects the correlation between words pairs. And the finally output is words with correlation information embedded.</p><h4 id="feed-forward">Feed Forward</h4><p>is just a normal linear perception layer, maybe with a ReLU activation function in between.</p><h4 id="positional-encoder">Positional Encoder</h4><p>Since self-attention layer do not incorporate positional information, we need to embed the word order into the input matrix. This can be done by simply adding a positional encoding matrix of the same shape as the input.</p><h4 id="encoder-decoder-attention">Encoder-Decoder Attention</h4><p>This is very much similar to self-attention, except we have <span class="math inline">\(\mathbf{K}^{d\times k}\)</span> and <span class="math inline">\(\mathbf{V}^{d\times l}\)</span> matrices coming from the <strong>encoder</strong>.</p><p>Meanwhile, the <span class="math inline">\(\mathbf{YQ_{De}K_{En}}^T\mathbf{X}^T\)</span> is <span class="math inline">\(v\times u\)</span>, representing the correlation between each pair of output and input words.</p><h4 id="other-techniques">Other Techniques</h4><p>Residual connection &amp; Layer Normalization</p><h4 id="training-mask">Training: Mask</h4><p>To train the model <strong>Once</strong>, you need to provide the following information</p><pre><code>Encoder:  Je   suis étudiant &lt;EOS&gt;
 Decoder: &lt;BOS&gt;  I      am      a     student
