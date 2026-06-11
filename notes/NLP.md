@@ -5,8 +5,10 @@ A context-free grammar (CFG) is a formal system used to describe the syntax of a
 **Examples:**
 
 $$
-\text{S} \rightarrow \text{NP} \; \text{VP}\\
-\text{NP} \rightarrow \text{N} | \text{DN} \\
+\begin{aligned}
+\text{S} &\rightarrow \text{NP} \; \text{VP}\\
+\text{NP} &\rightarrow \text{N} \mid \text{DN}
+\end{aligned}
 $$
 
 ### CNF (Chomsky Normal Form)
