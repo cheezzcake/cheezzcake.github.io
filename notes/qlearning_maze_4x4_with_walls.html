@@ -1,0 +1,385 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>3×4 迷宫 Q-Learning 演示</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Noto+Sans+SC:wght@400;500;700&display=swap');
+
+  :root {
+    --bg: #0e1117;
+    --panel: #161b22;
+    --line: #2d333b;
+    --ink: #c9d1d9;
+    --dim: #6e7681;
+    --amber: #ffb454;
+    --amber-glow: rgba(255,180,84,0.25);
+    --green: #3fb950;
+    --red: #f85149;
+    --blue: #58a6ff;
+    --cell: #1c2128;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: var(--bg);
+    color: var(--ink);
+    font-family: 'Noto Sans SC', sans-serif;
+    padding: 24px;
+    line-height: 1.5;
+    background-image: radial-gradient(circle at 20% 10%, rgba(88,166,255,0.05), transparent 40%),
+                      radial-gradient(circle at 80% 90%, rgba(255,180,84,0.05), transparent 40%);
+    min-height: 100vh;
+  }
+  .wrap { max-width: 1080px; margin: 0 auto; }
+  h1 {
+    font-family: 'Space Mono', monospace;
+    font-size: 22px; font-weight: 700; color: var(--blue);
+    margin-bottom: 4px; letter-spacing: 1px;
+  }
+  .sub { color: var(--dim); font-size: 13px; margin-bottom: 20px; }
+  .grids { display: flex; gap: 28px; flex-wrap: wrap; align-items: flex-start; }
+  .block { flex: 1; min-width: 320px; }
+  .block-title {
+    font-family: 'Space Mono', monospace; font-size: 13px; color: var(--blue);
+    margin-bottom: 10px; letter-spacing: 1px; text-transform: uppercase;
+  }
+  /* 迷宫网格 */
+  .maze { display: grid; grid-template-columns: repeat(4,1fr); gap: 4px; aspect-ratio: 4 / 3; }
+  .mcell {
+    background: var(--cell); border: 1px solid var(--line);
+    border-radius: 4px; position: relative;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 22px;
+  }
+  .mcell.goal { background: rgba(63,185,80,0.18); border-color: var(--green); color: var(--green); }
+  .mcell.trap { background: rgba(248,81,73,0.18); border-color: var(--red); color: var(--red); }
+  .mcell.wall {
+    background: repeating-linear-gradient(45deg, #30363d, #30363d 6px, #21262d 6px, #21262d 12px);
+    border-color: #484f58;
+  }
+  .qcell.wall {
+    background: repeating-linear-gradient(45deg, #30363d, #30363d 6px, #21262d 6px, #21262d 12px);
+    border-color: #484f58;
+  }
+  .mcell.agent::after {
+    content: '●'; color: var(--amber); font-size: 28px;
+    text-shadow: 0 0 12px var(--amber); animation: pulse 1s infinite;
+  }
+  @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.5} }
+
+  /* Q 表网格 */
+  .qtable { display: grid; grid-template-columns: repeat(4,1fr); gap: 4px; aspect-ratio: 4 / 3; }
+  .qcell {
+    background: var(--cell); border: 1px solid var(--line); border-radius: 4px;
+    position: relative; aspect-ratio: 1;
+  }
+  .qcell.goal { background: rgba(63,185,80,0.18); border-color: var(--green); color: var(--green); }
+  .qcell.trap { background: rgba(248,81,73,0.18); border-color: var(--red); color: var(--red); }
+  .qcell svg { width: 100%; height: 100%; display: block; }
+  .qval { font-family: 'Space Mono', monospace; font-size: 9px; }
+
+  .controls {
+    margin-top: 22px; display: flex; gap: 10px; flex-wrap: wrap; align-items: center;
+    background: var(--panel); border: 1px solid var(--line); border-radius: 8px; padding: 14px;
+  }
+  button {
+    font-family: 'Space Mono', monospace; font-size: 13px;
+    background: var(--cell); color: var(--ink); border: 1px solid var(--line);
+    padding: 8px 16px; border-radius: 6px; cursor: pointer; transition: all .15s;
+  }
+  button:hover { border-color: var(--amber); color: var(--amber); }
+  button.primary { background: var(--amber); color: #0e1117; border-color: var(--amber); font-weight: 700; }
+  button.primary:hover { background: #ffc66e; color: #0e1117; }
+  button:disabled { opacity: .4; cursor: not-allowed; }
+  .slider-group { display: flex; align-items: center; gap: 8px; font-size: 12px; color: var(--dim); }
+  input[type=range] { accent-color: var(--amber); }
+
+  .stats {
+    margin-top: 16px; display: flex; gap: 20px; flex-wrap: wrap;
+    font-family: 'Space Mono', monospace; font-size: 13px;
+  }
+  .stat { background: var(--panel); border: 1px solid var(--line); border-radius: 6px; padding: 8px 14px; }
+  .stat .label { color: var(--dim); font-size: 10px; text-transform: uppercase; }
+  .stat .value { color: var(--amber); font-size: 18px; font-weight: 700; }
+
+  .log {
+    margin-top: 16px; background: #0a0d12; border: 1px solid var(--line); border-radius: 8px;
+    padding: 14px; font-family: 'Space Mono', monospace; font-size: 12px;
+    height: 130px; overflow-y: auto; color: var(--dim);
+  }
+  .log .line { margin-bottom: 3px; }
+  .log .hl { color: var(--amber); }
+  .log .g { color: var(--green); }
+  .legend { margin-top: 14px; font-size: 12px; color: var(--dim); line-height: 1.8; }
+  .legend code { font-family: 'Space Mono', monospace; color: var(--blue); }
+  .formula {
+    margin-top: 16px; background: var(--panel); border: 1px solid var(--line);
+    border-radius: 8px; padding: 14px; font-family: 'Space Mono', monospace;
+    font-size: 12px; color: var(--ink); overflow-x: auto;
+  }
+  .formula .target { color: var(--green); }
+  .formula .old { color: var(--amber); }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>3×4 迷宫 Q-Learning 演示</h1>
+  <div class="sub">智能体（●）从左下角出发，避开红色 −1，抵达绿色 +1。看 Q 表如何从全 0 被真实奖励一步步“填”出来。</div>
+
+  <div class="grids">
+    <div class="block">
+      <div class="block-title">迷宫 · Maze</div>
+      <div class="maze" id="maze"></div>
+      <div class="legend">
+        <div>奖励设定：每走一步 = <code>−0.04</code>，到达<span style="color:var(--green)"> (0,3)</span> = <code>+1</code>，到达<span style="color:var(--red)"> (1,3)</span> = <code>−1</code></div>
+        <div>动作：↑ ↓ ← →，撞墙（边界或<span style="color:#8b949e">斜纹障碍</span>）则停在原地</div>
+      </div>
+    </div>
+
+    <div class="block">
+      <div class="block-title">Q 表 · 每格 4 个三角 = 4 个动作的 Q 值</div>
+      <div class="qtable" id="qtable"></div>
+      <div class="legend">
+        <div>三角偏<span style="color:var(--amber)">琥珀</span>表示正 Q，偏<span style="color:var(--red)">红</span>表示负 Q</div>
+        <div>上△=↑ 下△=↓ 左△=← 右△=→</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="formula">
+    Q(s,a) ← <span class="old">Q(s,a)</span> + α [ <span class="target">r + γ·max Q(s',·)</span> − <span class="old">Q(s,a)</span> ]
+  </div>
+
+  <div class="controls">
+    <button class="primary" id="step1">单步</button>
+    <button id="ep1">跑 1 幕</button>
+    <button id="ep50">跑 50 幕</button>
+    <button id="train">完整训练（300 幕）</button>
+    <button id="reset">重置</button>
+    <div class="slider-group">
+      速度 <input type="range" id="speed" min="0" max="100" value="60">
+    </div>
+  </div>
+
+  <div class="stats">
+    <div class="stat"><div class="label">Episode</div><div class="value" id="s-ep">0</div></div>
+    <div class="stat"><div class="label">总步数</div><div class="value" id="s-steps">0</div></div>
+    <div class="stat"><div class="label">ε (探索率)</div><div class="value" id="s-eps">1.00</div></div>
+    <div class="stat"><div class="label">本幕步数</div><div class="value" id="s-epsteps">0</div></div>
+    <div class="stat"><div class="label">本幕回报</div><div class="value" id="s-return">0.0</div></div>
+  </div>
+
+  <div class="log" id="log"></div>
+</div>
+
+<script>
+// ===== 环境定义 =====
+const ROWS = 3;
+const COLS = 4;
+const POS_TERMINAL = idx(0,3);     // (0,3) -> +1
+const NEG_TERMINAL = idx(1,3);     // (1,3) -> -1
+const START = idx(2,0);            // 左下角 (2,0)
+const ACTIONS = ['↑','↓','←','→']; // 0 up,1 down,2 left,3 right
+const STEP_REWARD = -0.04;
+const POS_REWARD = 1;
+const NEG_REWARD = -1;
+// 墙（障碍格）：(1,1)
+const WALLS = new Set([idx(1,1)]);
+function isWall(s){ return WALLS.has(s); }
+function isTerminal(s){ return s === POS_TERMINAL || s === NEG_TERMINAL; }
+function rewardFor(s){ return s === POS_TERMINAL ? POS_REWARD : s === NEG_TERMINAL ? NEG_REWARD : STEP_REWARD; }
+const ALPHA = 0.3, GAMMA = 0.9;
+let EPS = 1.0;
+
+// Q[state][action]
+let Q, curState, totalSteps, episode, epSteps, epReturn;
+
+function idx(r,c){ return r*COLS + c; }
+function rc(s){ return [Math.floor(s/COLS), s%COLS]; }
+
+function nextState(s, a){
+  let [r,c] = rc(s);
+  if(a===0) r--; if(a===1) r++; if(a===2) c--; if(a===3) c++;
+  if(r<0||r>=ROWS||c<0||c>=COLS) return s; // 撞外墙
+  const ns = idx(r,c);
+  if(isWall(ns)) return s;            // 撞内墙，停在原地
+  return ns;
+}
+
+function reset(){
+  Q = Array.from({length:ROWS*COLS}, ()=>[0,0,0,0]);
+  curState = START; totalSteps = 0; episode = 0; epSteps = 0; epReturn = 0;
+  EPS = 1.0;
+  logLines = [];
+  log('环境就绪。Q 表全部初始化为 0。', 'hl');
+  render();
+}
+
+// ε-greedy 选动作
+function chooseAction(s){
+  if(Math.random() < EPS){
+    return Math.floor(Math.random()*4);          // 探索
+  }
+  // 利用：取 Q 最大（平局随机）
+  let q = Q[s], mx = Math.max(...q);
+  let best = q.map((v,i)=>v===mx?i:-1).filter(i=>i>=0);
+  return best[Math.floor(Math.random()*best.length)];
+}
+
+// 执行一步 Q-Learning 更新
+function stepOnce(){
+  if(isTerminal(curState)){ startEpisode(); return; }
+  const s = curState;
+  const a = chooseAction(s);
+  const s2 = nextState(s, a);
+  const done = isTerminal(s2);
+  const r = rewardFor(s2);
+
+  const oldQ = Q[s][a];
+  const maxNext = done ? 0 : Math.max(...Q[s2]); // 终止状态之后没有未来
+  const target = r + GAMMA * maxNext;
+  Q[s][a] = oldQ + ALPHA * (target - oldQ);
+
+  totalSteps++; epSteps++; epReturn += r;
+  curState = s2;
+
+  const [sr,sc] = rc(s);
+  log(`s=(${sr},${sc}) a=${ACTIONS[a]} → r=${r.toFixed(2)}  Q: ${oldQ.toFixed(2)} → <span class="hl">${Q[s][a].toFixed(2)}</span>`,
+      done ? (s2 === POS_TERMINAL ? 'g' : '') : '');
+
+  if(done){
+    const [tr,tc] = rc(s2);
+    const cls = s2 === POS_TERMINAL ? 'g' : '';
+    log(`★ 到达终止状态 (${tr},${tc})！本幕用 ${epSteps} 步，回报 ${epReturn.toFixed(2)}`, cls);
+  }
+  render();
+  return done;
+}
+
+function startEpisode(){
+  episode++;
+  curState = START; epSteps = 0; epReturn = 0;
+  // ε 衰减
+  EPS = Math.max(0.05, 1.0 * Math.pow(0.985, episode));
+  render();
+}
+
+// 跑完整一幕
+async function runEpisode(animate=true){
+  if(isTerminal(curState) || epSteps>0) startEpisode();
+  let guard = 0;
+  while(!isTerminal(curState) && guard < 200){
+    const done = stepOnce();
+    guard++;
+    if(animate){ await sleep(speedDelay()); }
+    if(done) break;
+  }
+}
+
+// ===== 渲染 =====
+function render(){
+  // 迷宫
+  const maze = document.getElementById('maze');
+  maze.innerHTML='';
+  for(let s=0;s<ROWS*COLS;s++){
+    const d = document.createElement('div');
+    d.className='mcell';
+    if(isWall(s)){ d.classList.add('wall'); maze.appendChild(d); continue; }
+    if(s===POS_TERMINAL){ d.classList.add('goal'); d.textContent='+1'; }
+    if(s===NEG_TERMINAL){ d.classList.add('trap'); d.textContent='-1'; }
+    if(s===curState && !isTerminal(s)) d.classList.add('agent');
+    maze.appendChild(d);
+  }
+  // Q 表
+  const qt = document.getElementById('qtable');
+  qt.innerHTML='';
+  for(let s=0;s<ROWS*COLS;s++){
+    const d = document.createElement('div');
+    d.className='qcell';
+    if(isWall(s)){ d.classList.add('wall'); qt.appendChild(d); continue; }
+    if(s===POS_TERMINAL){ d.classList.add('goal'); d.innerHTML='<div style="display:flex;height:100%;align-items:center;justify-content:center;font-size:20px;font-family:Space Mono,monospace">+1</div>'; qt.appendChild(d); continue; }
+    if(s===NEG_TERMINAL){ d.classList.add('trap'); d.innerHTML='<div style="display:flex;height:100%;align-items:center;justify-content:center;font-size:20px;font-family:Space Mono,monospace">-1</div>'; qt.appendChild(d); continue; }
+    d.innerHTML = qcellSVG(Q[s]);
+    qt.appendChild(d);
+  }
+  // stats
+  document.getElementById('s-ep').textContent = episode;
+  document.getElementById('s-steps').textContent = totalSteps;
+  document.getElementById('s-eps').textContent = EPS.toFixed(2);
+  document.getElementById('s-epsteps').textContent = epSteps;
+  document.getElementById('s-return').textContent = epReturn.toFixed(1);
+}
+
+// 把一格画成 4 个三角，颜色映射 Q 值
+function qcellSVG(q){
+  // 归一化用于上色：正值偏琥珀，负值偏红
+  const allMax = Math.max(0.001, ...Q.flat().map(v => Math.abs(v)));
+  function col(v){
+    if(Math.abs(v) < 0.005) return '#1c2128';
+    const t = Math.min(1, Math.abs(v)/allMax);
+    if(v > 0){
+      const r = Math.round(28 + t*(255-28));
+      const g = Math.round(33 + t*(180-33));
+      const b = Math.round(40 + t*(84-40));
+      return `rgb(${r},${g},${b})`;
+    }
+    const r = Math.round(28 + t*(248-28));
+    const g = Math.round(33 + t*(81-33));
+    const b = Math.round(40 + t*(73-40));
+    return `rgb(${r},${g},${b})`;
+  }
+  function txt(v){ return Math.abs(v) < 0.005 ? '0' : v.toFixed(2); }
+  function tcol(v){ return Math.abs(v)/allMax>0.5 ? '#0e1117' : '#6e7681'; }
+  // 三角：上(0) 下(1) 左(2) 右(3)
+  return `<svg viewBox="0 0 100 100">
+    <polygon points="0,0 100,0 50,50" fill="${col(q[0])}" stroke="#2d333b" stroke-width="0.5"/>
+    <polygon points="0,100 100,100 50,50" fill="${col(q[1])}" stroke="#2d333b" stroke-width="0.5"/>
+    <polygon points="0,0 0,100 50,50" fill="${col(q[2])}" stroke="#2d333b" stroke-width="0.5"/>
+    <polygon points="100,0 100,100 50,50" fill="${col(q[3])}" stroke="#2d333b" stroke-width="0.5"/>
+    <text x="50" y="16" text-anchor="middle" class="qval" fill="${tcol(q[0])}">${txt(q[0])}</text>
+    <text x="50" y="92" text-anchor="middle" class="qval" fill="${tcol(q[1])}">${txt(q[1])}</text>
+    <text x="14" y="54" text-anchor="middle" class="qval" fill="${tcol(q[2])}">${txt(q[2])}</text>
+    <text x="86" y="54" text-anchor="middle" class="qval" fill="${tcol(q[3])}">${txt(q[3])}</text>
+  </svg>`;
+}
+
+// ===== 日志 =====
+let logLines = [];
+function log(msg, cls=''){
+  logLines.unshift(`<div class="line ${cls}">${msg}</div>`);
+  if(logLines.length>60) logLines.pop();
+  document.getElementById('log').innerHTML = logLines.join('');
+}
+
+// ===== 工具 =====
+function sleep(ms){ return new Promise(r=>setTimeout(r,ms)); }
+function speedDelay(){
+  const v = +document.getElementById('speed').value; // 0..100
+  return Math.round(220 * (1 - v/100)) + 5;           // 越大越快
+}
+let busy = false;
+function lockUI(b){ busy=b; ['step1','ep1','ep50','train','reset'].forEach(id=>document.getElementById(id).disabled=b); }
+
+// ===== 按钮 =====
+document.getElementById('step1').onclick = ()=>{ if(!busy) stepOnce(); };
+document.getElementById('ep1').onclick = async ()=>{ if(busy)return; lockUI(true); await runEpisode(true); lockUI(false); };
+document.getElementById('ep50').onclick = async ()=>{
+  if(busy)return; lockUI(true);
+  for(let i=0;i<50;i++){ await runEpisode(false); await sleep(2); render(); }
+  log('已跑 50 幕。', 'hl'); lockUI(false);
+};
+document.getElementById('train').onclick = async ()=>{
+  if(busy)return; lockUI(true);
+  for(let i=0;i<300;i++){ await runEpisode(false); if(i%20===0){ render(); await sleep(1);} }
+  render();
+  log('★ 训练完成 300 幕。Q 表已收敛——每格最亮的三角就是最优动作。', 'g');
+  lockUI(false);
+};
+document.getElementById('reset').onclick = ()=>{ if(!busy) reset(); };
+
+// init
+reset();
+</script>
+</body>
+</html>

@@ -1,0 +1,776 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Reinforce Learning 强化学习笔记</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Noto+Sans+SC:wght@400;500;700&display=swap');
+
+  :root {
+    --bg: #0e1117;
+    --panel: #161b22;
+    --panel-2: #1c2128;
+    --line: #2d333b;
+    --ink: #c9d1d9;
+    --dim: #6e7681;
+    --amber: #ffb454;
+    --green: #3fb950;
+    --red: #f85149;
+    --blue: #58a6ff;
+    --purple: #bc8cff;
+    --cell: #1c2128;
+  }
+
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body {
+    margin: 0;
+    background:
+      radial-gradient(circle at 16% 4%, rgba(88,166,255,0.08), transparent 34%),
+      radial-gradient(circle at 88% 18%, rgba(255,180,84,0.07), transparent 32%),
+      var(--bg);
+    color: var(--ink);
+    font-family: 'Noto Sans SC', sans-serif;
+    line-height: 1.68;
+  }
+
+  .layout {
+    display: grid;
+    grid-template-columns: 248px minmax(0, 1fr);
+    min-height: 100vh;
+  }
+
+  aside {
+    border-right: 1px solid var(--line);
+    background: rgba(14,17,23,0.78);
+    padding: 24px 18px;
+    position: sticky;
+    top: 0;
+    height: 100vh;
+    overflow: auto;
+  }
+
+  .brand {
+    font-family: 'Space Mono', monospace;
+    color: var(--blue);
+    font-weight: 700;
+    font-size: 18px;
+    line-height: 1.25;
+    margin-bottom: 6px;
+  }
+
+  .source {
+    color: var(--dim);
+    font-size: 12px;
+    word-break: break-all;
+    margin-bottom: 20px;
+  }
+
+  nav a {
+    display: block;
+    color: var(--ink);
+    text-decoration: none;
+    border: 1px solid transparent;
+    border-radius: 6px;
+    padding: 7px 9px;
+    font-size: 13px;
+    margin: 2px 0;
+  }
+
+  nav a:hover {
+    border-color: var(--line);
+    color: var(--amber);
+    background: rgba(255,180,84,0.06);
+  }
+
+  main {
+    padding: 28px;
+    max-width: 1180px;
+    width: 100%;
+  }
+
+  header {
+    border-bottom: 1px solid var(--line);
+    padding-bottom: 20px;
+    margin-bottom: 24px;
+  }
+
+  h1, h2, h3 {
+    font-family: 'Space Mono', 'Noto Sans SC', monospace;
+    line-height: 1.2;
+    letter-spacing: 0;
+  }
+
+  h1 {
+    color: var(--blue);
+    font-size: 30px;
+    margin: 0 0 8px;
+  }
+
+  .subtitle {
+    color: var(--dim);
+    margin: 0;
+    max-width: 780px;
+  }
+
+  section {
+    border-top: 1px solid var(--line);
+    padding: 26px 0 30px;
+  }
+
+  h2 {
+    color: var(--blue);
+    font-size: 20px;
+    margin: 0 0 14px;
+  }
+
+  h3 {
+    color: var(--amber);
+    font-size: 15px;
+    margin: 22px 0 10px;
+  }
+
+  p { margin: 10px 0; }
+  strong { color: #f0f6fc; }
+  code, pre, .mono {
+    font-family: 'Space Mono', monospace;
+  }
+
+  .grid-2 {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 14px;
+    margin: 16px 0;
+  }
+
+  .concept, .equation, .algorithm, .demo-panel, .note-strip {
+    border: 1px solid var(--line);
+    background: var(--panel);
+    border-radius: 8px;
+  }
+
+  .concept {
+    padding: 14px;
+    min-height: 100%;
+  }
+
+  .concept .label {
+    color: var(--dim);
+    font-family: 'Space Mono', monospace;
+    font-size: 12px;
+    text-transform: uppercase;
+    margin-bottom: 3px;
+  }
+
+  .concept .value {
+    color: var(--amber);
+    font-family: 'Space Mono', monospace;
+    font-weight: 700;
+    font-size: 18px;
+  }
+
+  .equation {
+    padding: 14px 16px;
+    overflow-x: auto;
+    margin: 14px 0;
+  }
+
+  .algorithm {
+    font-family: 'Space Mono', monospace;
+    color: var(--ink);
+    padding: 15px 16px;
+    overflow-x: auto;
+    font-size: 13px;
+    white-space: pre;
+    margin: 14px 0;
+  }
+
+  .algorithm code {
+    font-family: inherit;
+    color: inherit;
+    background: transparent;
+    padding: 0;
+  }
+
+  .note-strip {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 0;
+    overflow: hidden;
+    margin: 16px 0;
+  }
+
+  .note-strip div {
+    padding: 14px;
+    border-right: 1px solid var(--line);
+  }
+
+  .note-strip div:last-child { border-right: 0; }
+  .note-strip span {
+    display: block;
+    color: var(--dim);
+    font-size: 12px;
+    font-family: 'Space Mono', monospace;
+    margin-bottom: 6px;
+  }
+
+  .demo-panel {
+    padding: 16px;
+    margin-top: 18px;
+  }
+
+  .demo-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    border-bottom: 1px solid var(--line);
+    padding-bottom: 12px;
+    margin-bottom: 14px;
+  }
+
+  .demo-title {
+    font-family: 'Space Mono', monospace;
+    color: var(--amber);
+    font-weight: 700;
+  }
+
+  .demo-subtitle {
+    color: var(--dim);
+    font-size: 13px;
+  }
+
+  .demo-frame {
+    width: 100%;
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    background: #0a0d12;
+    display: block;
+  }
+
+  .frame-q { height: 760px; }
+  .frame-dqn { height: 840px; }
+
+  .update-demo {
+    display: grid;
+    grid-template-columns: minmax(280px, 420px) minmax(280px, 1fr);
+    gap: 18px;
+    align-items: start;
+  }
+
+  .vi-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 4px;
+    aspect-ratio: 4 / 3;
+  }
+
+  .vi-cell {
+    background: var(--cell);
+    border: 1px solid var(--line);
+    border-radius: 4px;
+    min-height: 82px;
+    padding: 8px;
+    position: relative;
+  }
+
+  .vi-cell.wall {
+    background: repeating-linear-gradient(45deg, #30363d, #30363d 6px, #21262d 6px, #21262d 12px);
+    border-color: #484f58;
+  }
+
+  .vi-cell.pos { border-color: var(--green); background: rgba(63,185,80,0.16); }
+  .vi-cell.neg { border-color: var(--red); background: rgba(248,81,73,0.16); }
+  .vi-rc {
+    color: var(--dim);
+    font-size: 10px;
+    font-family: 'Space Mono', monospace;
+  }
+
+  .vi-value {
+    color: var(--amber);
+    font-family: 'Space Mono', monospace;
+    font-size: 18px;
+    font-weight: 700;
+    margin-top: 8px;
+  }
+
+  .vi-policy {
+    position: absolute;
+    right: 9px;
+    bottom: 4px;
+    color: var(--blue);
+    font-size: 24px;
+    font-family: 'Space Mono', monospace;
+  }
+
+  .controls {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-bottom: 14px;
+  }
+
+  button {
+    font-family: 'Space Mono', monospace;
+    font-size: 13px;
+    background: var(--cell);
+    color: var(--ink);
+    border: 1px solid var(--line);
+    padding: 8px 14px;
+    border-radius: 6px;
+    cursor: pointer;
+  }
+
+  button:hover {
+    border-color: var(--amber);
+    color: var(--amber);
+  }
+
+  button.primary {
+    background: var(--amber);
+    color: #0e1117;
+    border-color: var(--amber);
+    font-weight: 700;
+  }
+
+  .stats {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 10px;
+    margin-bottom: 14px;
+  }
+
+  .stat {
+    background: var(--panel-2);
+    border: 1px solid var(--line);
+    border-radius: 6px;
+    padding: 10px;
+  }
+
+  .stat .k {
+    color: var(--dim);
+    font-family: 'Space Mono', monospace;
+    font-size: 10px;
+    text-transform: uppercase;
+  }
+
+  .stat .v {
+    color: var(--amber);
+    font-family: 'Space Mono', monospace;
+    font-weight: 700;
+    font-size: 18px;
+  }
+
+  .log {
+    background: #0a0d12;
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    height: 188px;
+    overflow: auto;
+    padding: 12px;
+    font-family: 'Space Mono', monospace;
+    font-size: 12px;
+    color: var(--dim);
+  }
+
+  .log .line { margin-bottom: 5px; }
+  .log .hl { color: var(--amber); }
+  .log .ok { color: var(--green); }
+
+  .small {
+    color: var(--dim);
+    font-size: 13px;
+  }
+
+  @media (max-width: 940px) {
+    .layout { grid-template-columns: 1fr; }
+    aside { position: static; height: auto; border-right: 0; border-bottom: 1px solid var(--line); }
+    main { padding: 20px; }
+    .grid-2, .note-strip, .update-demo, .stats { grid-template-columns: 1fr; }
+    .frame-q, .frame-dqn { height: 760px; }
+  }
+</style>
+<script>
+  window.MathJax = {
+    tex: { inlineMath: [['$', '$'], ['\\(', '\\)']] },
+    svg: { fontCache: 'global' }
+  };
+</script>
+<script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
+</head>
+<body>
+<div class="layout">
+  <aside>
+    <div class="brand">RL Notebook</div>
+    <div class="source">D:/YixuanSu/Notes/AI_Intro/RL.md</div>
+    <nav>
+      <a href="#elements">强化学习的元素</a>
+      <a href="#return">采用什么策略</a>
+      <a href="#bellman">Bellman 方程</a>
+      <a href="#iteration">迭代更新</a>
+      <a href="#iteration-demo">迭代更新演示</a>
+      <a href="#qlearning">Q-learning</a>
+      <a href="#q-demo">Q-learning 演示</a>
+      <a href="#dqn">DQN</a>
+      <a href="#dqn-demo">DQN 演示</a>
+    </nav>
+  </aside>
+
+  <main>
+    <header>
+      <h1>Reinforce Learning 强化学习</h1>
+      <p class="subtitle">从状态、动作、奖励出发，沿着 Bellman 方程、动态规划、Q-learning、DQN 一路往下走。这里保留原笔记的数学主线，并把算法演示嵌到对应位置。</p>
+    </header>
+
+    <section id="elements">
+      <h2>强化学习的元素</h2>
+      <div class="grid-2">
+        <div class="concept"><div class="label">State</div><div class="value">$s \in \mathcal{S}$</div><p>状态，描述智能体当前所处的情况。</p></div>
+        <div class="concept"><div class="label">Action</div><div class="value">$a \in \mathcal{A}$</div><p>动作，智能体可以选择的行为。</p></div>
+        <div class="concept"><div class="label">Reward</div><div class="value">$r(s,a,s')$</div><p>回报，环境对一次转移给出的反馈。</p></div>
+        <div class="concept"><div class="label">Transition</div><div class="value">$T(s,a,s') = P(s'|s,a)$</div><p>迁移概率，在状态 $s$ 做动作 $a$ 后到达 $s'$ 的概率。</p></div>
+        <div class="concept"><div class="label">Policy</div><div class="value">$\pi(a|s)$</div><p>策略，可以是决定性的，也可以是随机性的。</p></div>
+        <div class="concept"><div class="label">Trajectory</div><div class="value">$\tau$</div><p>一条状态、动作、奖励交替出现的轨迹。</p></div>
+      </div>
+      <p>一般来说，从一个状态选哪一步是概率问题；选了一步后能到哪里，也是概率问题。</p>
+      <div class="equation">
+        $$\tau = (s_0, a_0, r_0, s_1, a_1, r_1, \ldots, s_t, r_t, \ldots)$$
+      </div>
+    </section>
+
+    <section id="return">
+      <h2>采用什么策略？</h2>
+      <h3>Discounted future return</h3>
+      <div class="equation">
+        $$G_t = \sum_{i=0}^{T} \gamma^i r_{t+i+1}$$
+      </div>
+      <p>$\gamma$ 是折扣因子。越远的奖励，通常越不确定，所以权重更小。</p>
+
+      <h3>价值函数</h3>
+      <p>$E$ 表示 expectation，也就是期望。价值函数本质上是在问：从这里开始，未来平均能拿多少回报？</p>
+      <div class="equation">
+        $$V_\pi(s)=\mathbb{E}_{\tau \sim \pi}\left[G(\tau) \mid s_0=s\right]=\mathbb{E}_{\tau \sim \pi}\left[\sum_t \gamma^t r_t \mid s_0=s\right]$$
+      </div>
+      <div class="equation">
+        $$Q_\pi(s,a)=\mathbb{E}_{\tau \sim \pi}\left[G(\tau) \mid s_0=s,a_0=a\right]=\mathbb{E}_{\tau \sim \pi}\left[\sum_t \gamma^t r_t \mid s_0=s,a_0=a\right]$$
+      </div>
+      <div class="note-strip">
+        <div><span>$V_\pi(s)$</span>只看状态本身值多少钱。</div>
+        <div><span>$Q_\pi(s,a)$</span>先指定第一步动作，再看未来值多少钱。</div>
+        <div><span>$\pi$</span>告诉智能体之后怎么继续走。</div>
+      </div>
+    </section>
+
+    <section id="bellman">
+      <h2>Bellman 方程</h2>
+      <h3>Bellman 期望方程</h3>
+      <p>Bellman 期望方程把“未来总回报”拆成“眼前这一步奖励 + 下一状态的价值”。</p>
+      <div class="equation">
+        $$\begin{aligned}
+        V_\pi(s)
+        &=\mathbb{E}_{\tau \sim \pi}\left[r_0+\gamma r_1+\gamma^2 r_2+\cdots \mid s_0=s\right] \\
+        &=\mathbb{E}_{(a_0,r_0,s_1)\sim\pi}\left[r_0+\gamma V_\pi(s_1)\right] \\
+        &=\sum_{a} \pi(a|s)\sum_{s',r}p(s',r|s,a)\left[r+\gamma V_\pi(s')\right]
+        \end{aligned}$$
+      </div>
+      <div class="equation">
+        $$Q_\pi(s,a)=\sum_{s',r}p(s',r|s,a)\left[r+\gamma V_\pi(s')\right]$$
+      </div>
+
+      <h3>Bellman 最优方程</h3>
+      <p>最优方程把“按当前策略取期望”换成“选最好的动作”。</p>
+      <div class="equation">
+        $$\begin{aligned}
+        V^*(s)&=\max_{a}\sum_{s',r}p(s',r|s,a)\left[r+\gamma V^*(s')\right] \\
+        Q^*(s,a)&=\sum_{s',r}p(s',r|s,a)\left[r+\gamma\max_{a'}Q^*(s',a')\right]
+        \end{aligned}$$
+      </div>
+    </section>
+
+    <section id="iteration">
+      <h2>迭代更新</h2>
+      <h3>策略估值</h3>
+      <p>给定一个固定策略 $\pi$，反复用 Bellman 期望方程更新 $V$。</p>
+      <div class="equation">
+        $$V_{k+1}(s)=\sum_{a}\pi(a|s)\sum_{s',r}p(s',r|s,a)\left[r+\gamma V_k(s')\right]$$
+      </div>
+      <p>当 $\max_{s\in S}|V_{k+1}(s)-V_k(s)|$ 足够小时停止。</p>
+
+      <h3>策略提升</h3>
+      <p>用当前的 $V$ 反过来挑更好的动作。</p>
+      <div class="equation">
+        $$\pi'(s) \doteq \operatorname{argmax}_{a}Q_\pi(s,a)$$
+      </div>
+
+      <h3>策略迭代</h3>
+      <pre class="algorithm"><code>Initialization:
+  V(s) ∈ R and π(s) ∈ A(s) arbitrarily for all s ∈ S
+
+Policy Evaluation:
+  Repeat:
+    Δ ← 0
+    For each s ∈ S:
+      v ← V(s)
+      V(s) ← Σ p(s', r | s, π(s))[r + γV(s')]
+      Δ ← max(Δ, |v - V(s)|)
+  until Δ &lt; θ
+
+Policy Improvement:
+  policy-stable ← true
+  For each s ∈ S:
+    old-action ← π(s)
+    π(s) ← argmax_a Σ p(s', r | s, a)[r + γV(s')]
+    if old-action ≠ π(s), policy-stable ← false
+  if policy-stable, stop; else return to evaluation</code></pre>
+    </section>
+
+    <section id="iteration-demo">
+      <h2>迭代更新演示</h2>
+      <p>这个小演示用同一张 3×4 地图展示动态规划式的策略估值和策略提升。它已知环境模型，所以每次可以扫过所有状态。</p>
+      <div class="demo-panel">
+        <div class="demo-head">
+          <div>
+            <div class="demo-title">Policy Evaluation / Improvement</div>
+            <div class="demo-subtitle">3×4 map, wall at (1,1), terminals: (0,3)=+1, (1,3)=-1</div>
+          </div>
+        </div>
+        <div class="update-demo">
+          <div>
+            <div class="vi-grid" id="viGrid"></div>
+          </div>
+          <div>
+            <div class="controls">
+              <button class="primary" id="evalStep">估值一步</button>
+              <button id="improvePolicy">提升策略</button>
+              <button id="autoIter">自动迭代</button>
+              <button id="resetIter">重置</button>
+            </div>
+            <div class="stats">
+              <div class="stat"><div class="k">Sweep</div><div class="v" id="sweepCount">0</div></div>
+              <div class="stat"><div class="k">Delta</div><div class="v" id="deltaValue">0.000</div></div>
+              <div class="stat"><div class="k">Policy Changes</div><div class="v" id="policyChanges">0</div></div>
+            </div>
+            <div class="log" id="iterLog"></div>
+            <p class="small">每个普通格显示当前 $V(s)$ 和策略箭头。点击“估值一步”会按当前策略扫一遍所有状态；点击“提升策略”会用当前 $V$ 对每个状态做贪心改进。</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="qlearning">
+      <h2>Q-learning</h2>
+      <p><strong>问：</strong>每次循环需要遍历所有状态，效率很低，是否可以通过采样来计算？</p>
+      <p><strong>答：</strong>可以。Q-learning 不需要知道完整的迁移概率 $p$，而是靠真实交互采样来更新 Q 值。</p>
+      <div class="equation">
+        $$Q(s_t,a_t) \leftarrow Q(s_t,a_t)+\alpha\left(r_t+\gamma\max_{a'}Q(s_{t+1},a')-Q(s_t,a_t)\right)$$
+      </div>
+      <p>其中，$a_t$ 一般使用 $\varepsilon$-greedy 选取。它既会探索，也会利用当前已经学到的 Q 值。</p>
+      <pre class="algorithm"><code>Initialize Q(s, a), ∀s ∈ S, a ∈ A(s), arbitrarily,
+and Q(terminal-state, ·) = 0
+
+Repeat for each episode:
+  Initialize S
+  Repeat for each step:
+    Choose A from S using policy derived from Q, e.g. ε-greedy
+    Take action A, observe R, S'
+    Q(S, A) ← Q(S, A) + α[R + γ max_a Q(S', a) - Q(S, A)]
+    S ← S'
+  until S is terminal</code></pre>
+    </section>
+
+    <section id="q-demo">
+      <h2>Q-learning 演示</h2>
+      <p>这里嵌入的是已经修改过的 3×4 Q-learning 迷宫案例。</p>
+      <div class="demo-panel">
+        <div class="demo-head">
+          <div>
+            <div class="demo-title">Q-learning Maze Demo</div>
+            <div class="demo-subtitle">采样更新，只改刚刚经历过的那个 $Q(s,a)$。</div>
+          </div>
+        </div>
+        <iframe class="demo-frame frame-q" src="qlearning_maze_4x4_with_walls.html" title="Q-learning maze demo"></iframe>
+      </div>
+    </section>
+
+    <section id="dqn">
+      <h2>DQN (Deep Q-Network)</h2>
+      <p>DQN 把 Q-learning 从“查表”升级成“用神经网络估计 Q 值”。以前是 $Q(s,a)$ 表格，现在是带参数的函数 $Q_\theta(s,a)$。</p>
+      <div class="equation">
+        $$Q_\theta(s_t,a_t)$$
+      </div>
+      <p>训练时构造 target：</p>
+      <div class="equation">
+        $$y_t = r_t + \gamma \max_{a'} Q^{\text{target}}(s_{t+1},a')$$
+      </div>
+      <p>然后让网络预测靠近 target：</p>
+      <div class="equation">
+        $$loss = \frac{1}{2}\left[Q_\theta(s_t,a_t)-y_t\right]^2$$
+      </div>
+      <div class="note-strip">
+        <div><span>主网络 $Q_\theta$</span>每一步被梯度下降更新，负责预测与选动作。</div>
+        <div><span>目标网络 $Q^{\text{target}}$</span>主网络的旧快照，只用来计算 target。</div>
+        <div><span>Replay Buffer</span>保存 $(s_t,a_t,r_t,s_{t+1})$，训练时随机抽样。</div>
+      </div>
+      <p>$Q^{\text{target}}$ 不是外部答案。它在训练开始时由主网络复制而来，之后冻结一段时间；每隔 $N$ 步，再执行一次 $Q^{\text{target}} \leftarrow Q_\theta$。这样 target 不会每一步都跟着主网络乱动，训练更稳定。</p>
+    </section>
+
+    <section id="dqn-demo">
+      <h2>DQN 演示</h2>
+      <p>这里嵌入 Claude 写的 DQN 可视化案例：浏览器里手写小型神经网络、replay buffer、target network 和 loss 曲线。</p>
+      <div class="demo-panel">
+        <div class="demo-head">
+          <div>
+            <div class="demo-title">Deep Q-Network Demo</div>
+            <div class="demo-subtitle">用神经网络逼近 Q 函数，把强化学习更新变成回归 loss。</div>
+          </div>
+        </div>
+        <iframe class="demo-frame frame-dqn" src="dqn_demo.html" title="DQN demo"></iframe>
+      </div>
+    </section>
+  </main>
+</div>
+
+<script>
+const iter = {
+  rows: 3,
+  cols: 4,
+  gamma: 0.9,
+  stepReward: -0.04,
+  pos: 3,
+  neg: 7,
+  wall: 5,
+  actions: ['↑', '↓', '←', '→'],
+  deltas: [[-1,0],[1,0],[0,-1],[0,1]],
+  V: [],
+  policy: [],
+  sweep: 0,
+  lastDelta: 0,
+  changes: 0,
+  timer: null
+};
+
+function iterIdx(r, c) { return r * iter.cols + c; }
+function iterRC(s) { return [Math.floor(s / iter.cols), s % iter.cols]; }
+function iterIsTerminal(s) { return s === iter.pos || s === iter.neg; }
+function iterIsWall(s) { return s === iter.wall; }
+function iterReward(s) {
+  if (s === iter.pos) return 1;
+  if (s === iter.neg) return -1;
+  return iter.stepReward;
+}
+function iterNext(s, a) {
+  const [r0, c0] = iterRC(s);
+  const [dr, dc] = iter.deltas[a];
+  const r = r0 + dr;
+  const c = c0 + dc;
+  if (r < 0 || r >= iter.rows || c < 0 || c >= iter.cols) return s;
+  const ns = iterIdx(r, c);
+  if (iterIsWall(ns)) return s;
+  return ns;
+}
+function iterQ(s, a) {
+  const ns = iterNext(s, a);
+  return iterReward(ns) + (iterIsTerminal(ns) ? 0 : iter.gamma * iter.V[ns]);
+}
+function resetIteration() {
+  const n = iter.rows * iter.cols;
+  iter.V = Array.from({ length: n }, () => 0);
+  iter.policy = Array.from({ length: n }, (_, s) => iterIsTerminal(s) || iterIsWall(s) ? -1 : 3);
+  iter.sweep = 0;
+  iter.lastDelta = 0;
+  iter.changes = 0;
+  clearInterval(iter.timer);
+  iter.timer = null;
+  writeIterLog('环境就绪。初始策略全部向右。', 'hl');
+  renderIteration();
+}
+function evalSweep() {
+  const old = iter.V.slice();
+  let delta = 0;
+  for (let s = 0; s < old.length; s++) {
+    if (iterIsTerminal(s) || iterIsWall(s)) {
+      iter.V[s] = 0;
+      continue;
+    }
+    const a = iter.policy[s];
+    const ns = iterNext(s, a);
+    const nextValue = iterIsTerminal(ns) ? 0 : old[ns];
+    const updated = iterReward(ns) + iter.gamma * nextValue;
+    delta = Math.max(delta, Math.abs(updated - old[s]));
+    iter.V[s] = updated;
+  }
+  iter.sweep++;
+  iter.lastDelta = delta;
+  writeIterLog(`Sweep ${iter.sweep}: Δ=${delta.toFixed(4)}`, delta < 0.01 ? 'ok' : '');
+  renderIteration();
+}
+function improvePolicy() {
+  let changes = 0;
+  for (let s = 0; s < iter.V.length; s++) {
+    if (iterIsTerminal(s) || iterIsWall(s)) continue;
+    const old = iter.policy[s];
+    const qs = [0,1,2,3].map(a => iterQ(s, a));
+    let best = 0;
+    for (let a = 1; a < qs.length; a++) {
+      if (qs[a] > qs[best]) best = a;
+    }
+    iter.policy[s] = best;
+    if (best !== old) changes++;
+  }
+  iter.changes = changes;
+  writeIterLog(`Policy improvement: ${changes} state(s) changed.`, changes === 0 ? 'ok' : 'hl');
+  renderIteration();
+}
+function autoIteration() {
+  clearInterval(iter.timer);
+  iter.timer = setInterval(() => {
+    evalSweep();
+    if (iter.sweep % 5 === 0) {
+      improvePolicy();
+      if (iter.changes === 0 && iter.lastDelta < 0.01) {
+        clearInterval(iter.timer);
+        iter.timer = null;
+        writeIterLog('策略稳定，估值变化很小。', 'ok');
+      }
+    }
+  }, 260);
+}
+function renderIteration() {
+  const grid = document.getElementById('viGrid');
+  grid.innerHTML = '';
+  for (let s = 0; s < iter.rows * iter.cols; s++) {
+    const d = document.createElement('div');
+    d.className = 'vi-cell';
+    const [r, c] = iterRC(s);
+    if (iterIsWall(s)) {
+      d.classList.add('wall');
+      d.innerHTML = `<div class="vi-rc">(${r},${c})</div>`;
+      grid.appendChild(d);
+      continue;
+    }
+    if (s === iter.pos) d.classList.add('pos');
+    if (s === iter.neg) d.classList.add('neg');
+    const value = iterIsTerminal(s) ? (s === iter.pos ? '+1' : '-1') : iter.V[s].toFixed(2);
+    const arrow = iter.policy[s] >= 0 ? iter.actions[iter.policy[s]] : '';
+    d.innerHTML = `<div class="vi-rc">(${r},${c})</div><div class="vi-value">${value}</div><div class="vi-policy">${arrow}</div>`;
+    grid.appendChild(d);
+  }
+  document.getElementById('sweepCount').textContent = iter.sweep;
+  document.getElementById('deltaValue').textContent = iter.lastDelta.toFixed(3);
+  document.getElementById('policyChanges').textContent = iter.changes;
+}
+function writeIterLog(msg, cls = '') {
+  const log = document.getElementById('iterLog');
+  log.insertAdjacentHTML('afterbegin', `<div class="line ${cls}">${msg}</div>`);
+  while (log.children.length > 48) log.lastChild.remove();
+}
+document.getElementById('evalStep').addEventListener('click', evalSweep);
+document.getElementById('improvePolicy').addEventListener('click', improvePolicy);
+document.getElementById('autoIter').addEventListener('click', autoIteration);
+document.getElementById('resetIter').addEventListener('click', resetIteration);
+resetIteration();
+</script>
+</body>
+</html>

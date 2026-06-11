@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DQN 可视化演示</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Noto+Sans+SC:wght@400;500;700&display=swap');
+  :root{
+    --bg:#0e1117;--panel:#161b22;--line:#2d333b;--ink:#c9d1d9;--dim:#6e7681;
+    --amber:#ffb454;--green:#3fb950;--red:#f85149;--blue:#58a6ff;--purple:#bc8cff;--cell:#1c2128;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{background:var(--bg);color:var(--ink);font-family:'Noto Sans SC',sans-serif;padding:24px;line-height:1.5;
+    background-image:radial-gradient(circle at 15% 5%,rgba(88,166,255,.05),transparent 40%),radial-gradient(circle at 85% 95%,rgba(188,140,255,.05),transparent 40%);min-height:100vh}
+  .wrap{max-width:1140px;margin:0 auto}
+  h1{font-family:'Space Mono',monospace;font-size:22px;color:var(--blue);margin-bottom:4px;letter-spacing:1px}
+  .sub{color:var(--dim);font-size:13px;margin-bottom:20px}
+  .row{display:flex;gap:22px;flex-wrap:wrap;align-items:flex-start}
+  .col{flex:1;min-width:300px}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:16px;margin-bottom:16px}
+  .card-title{font-family:'Space Mono',monospace;font-size:12px;color:var(--blue);letter-spacing:1px;text-transform:uppercase;margin-bottom:12px}
+  /* maze */
+  .maze{display:grid;grid-template-columns:repeat(4,1fr);gap:4px;aspect-ratio:1;max-width:280px}
+  .mcell{background:var(--cell);border:1px solid var(--line);border-radius:4px;display:flex;align-items:center;justify-content:center;font-size:20px;position:relative}
+  .mcell.goal{background:rgba(248,81,73,.18);border-color:var(--red)}
+  .mcell.wall{background:repeating-linear-gradient(45deg,#30363d,#30363d 6px,#21262d 6px,#21262d 12px);border-color:#484f58}
+  .mcell.agent::after{content:'●';color:var(--amber);font-size:24px;text-shadow:0 0 12px var(--amber);animation:pulse 1s infinite}
+  @keyframes pulse{0%,100%{opacity:1}50%{opacity:.5}}
+  /* q arrows over maze */
+  .qarrow{position:absolute;font-size:11px;color:var(--green);font-family:'Space Mono',monospace}
+  /* network diagram */
+  .netbox{width:100%;height:220px}
+  /* buffer */
+  .buffer{display:flex;flex-wrap:wrap;gap:3px;max-height:120px;overflow:hidden}
+  .bchip{width:14px;height:14px;border-radius:3px;background:var(--cell);border:1px solid var(--line);transition:background .2s}
+  .bchip.filled{background:var(--purple);border-color:var(--purple)}
+  .bchip.sampled{background:var(--amber);border-color:var(--amber);box-shadow:0 0 6px var(--amber)}
+  /* controls */
+  .controls{display:flex;gap:10px;flex-wrap:wrap;align-items:center;background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:14px;margin-bottom:16px}
+  button{font-family:'Space Mono',monospace;font-size:13px;background:var(--cell);color:var(--ink);border:1px solid var(--line);padding:8px 16px;border-radius:6px;cursor:pointer;transition:all .15s}
+  button:hover{border-color:var(--amber);color:var(--amber)}
+  button.primary{background:var(--amber);color:#0e1117;border-color:var(--amber);font-weight:700}
+  button.primary:hover{background:#ffc66e}
+  button:disabled{opacity:.4;cursor:not-allowed}
+  .slider-group{display:flex;align-items:center;gap:8px;font-size:12px;color:var(--dim)}
+  input[type=range]{accent-color:var(--amber)}
+  .stats{display:flex;gap:14px;flex-wrap:wrap;font-family:'Space Mono',monospace;font-size:13px;margin-bottom:16px}
+  .stat{background:var(--panel);border:1px solid var(--line);border-radius:6px;padding:8px 14px}
+  .stat .label{color:var(--dim);font-size:10px;text-transform:uppercase}
+  .stat .value{color:var(--amber);font-size:18px;font-weight:700}
+  .lossbox{width:100%;height:140px}
+  .log{background:#0a0d12;border:1px solid var(--line);border-radius:8px;padding:12px;font-family:'Space Mono',monospace;font-size:11px;height:120px;overflow-y:auto;color:var(--dim)}
+  .log .hl{color:var(--amber)} .log .g{color:var(--green)} .log .b{color:var(--blue)}
+  .note{font-size:12px;color:var(--dim);margin-top:8px;line-height:1.7}
+  .note code{font-family:'Space Mono',monospace;color:var(--blue)}
+  .tgtflash{animation:flash .6s}
+  @keyframes flash{0%{color:var(--green)}100%{color:var(--amber)}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>DQN 可视化演示</h1>
+  <div class="sub">同一个迷宫，但 Q 值不再是表格，而是一个神经网络 Q<sub>θ</sub>(s,a) 的输出。观察经验回放、目标网络同步、loss 下降如何协同工作。</div>
+
+  <div class="controls">
+    <button class="primary" id="step">单步</button>
+    <button id="ep">跑 1 幕</button>
+    <button id="train">训练（200 幕）</button>
+    <button id="reset">重置</button>
+    <div class="slider-group">速度 <input type="range" id="speed" min="0" max="100" value="70"></div>
+  </div>
+
+  <div class="stats">
+    <div class="stat"><div class="label">Episode</div><div class="value" id="s-ep">0</div></div>
+    <div class="stat"><div class="label">总步数</div><div class="value" id="s-steps">0</div></div>
+    <div class="stat"><div class="label">ε</div><div class="value" id="s-eps">1.00</div></div>
+    <div class="stat"><div class="label">Buffer</div><div class="value" id="s-buf">0</div></div>
+    <div class="stat"><div class="label">Loss</div><div class="value" id="s-loss">—</div></div>
+    <div class="stat"><div class="label">目标网络同步</div><div class="value" id="s-sync">0</div></div>
+  </div>
+
+  <div class="row">
+    <div class="col">
+      <div class="card">
+        <div class="card-title">迷宫 · 绿色箭头 = 网络当前认为的最优动作</div>
+        <div class="maze" id="maze"></div>
+        <div class="note">状态编码：网络输入是格子的 (行,列) 归一化坐标；输出 4 个动作的 Q 值。</div>
+      </div>
+      <div class="card">
+        <div class="card-title">Replay Buffer D（紫=已存，黄=本次抽样的 minibatch）</div>
+        <div class="buffer" id="buffer"></div>
+        <div class="note">每步把经验 (s,a,r,s') 存进池子；每次训练从中<b>随机抽一批</b>，打散相关性。</div>
+      </div>
+    </div>
+
+    <div class="col">
+      <div class="card">
+        <div class="card-title">神经网络 Q<sub>θ</sub> · 2→8→8→4</div>
+        <svg class="netbox" id="net" viewBox="0 0 360 220"></svg>
+        <div class="note">输入 2 维(行,列) → 两个隐层(8) → 输出 4 个动作的 Q。连线明暗=权重大小。</div>
+      </div>
+      <div class="card">
+        <div class="card-title">训练 Loss（target 网络 vs 主网络的 MSE）</div>
+        <svg class="lossbox" id="loss" viewBox="0 0 360 140"></svg>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">运行日志</div>
+    <div class="log" id="log"></div>
+  </div>
+</div>
+
+<script>
+// ================= 环境（同迷宫）=================
+const N=4, GOAL=3, START=12;
+const WALLS=new Set([1*N+1,1*N+2,2*N+1]); // (1,1)(1,2)(2,1)
+const ACTIONS=['↑','↓','←','→'];
+const STEP_R=-0.1, GOAL_R=10, GAMMA=0.9;
+function rc(s){return [Math.floor(s/N), s%N];}
+function isWall(s){return WALLS.has(s);}
+function nextState(s,a){let[r,c]=rc(s);if(a===0)r--;if(a===1)r++;if(a===2)c--;if(a===3)c++;
+  if(r<0||r>=N||c<0||c>=N)return s;const ns=r*N+c;return isWall(ns)?s:ns;}
+// 状态 -> 网络输入（归一化坐标）
+function feat(s){let[r,c]=rc(s);return [r/(N-1), c/(N-1)];}
+
+// ================= 极简神经网络（手写，2-8-8-4）=================
+// 用 tanh 隐层 + 线性输出，MSE loss，SGD
+function randMat(rows,cols){let m=[];for(let i=0;i<rows;i++){m.push([]);for(let j=0;j<cols;j++)m[i].push((Math.random()*2-1)*0.5);}return m;}
+function zeros(n){return new Array(n).fill(0);}
+function makeNet(){
+  return {
+    W1:randMat(8,2), b1:zeros(8),
+    W2:randMat(8,8), b2:zeros(8),
+    W3:randMat(4,8), b3:zeros(4),
+  };
+}
+function clone(net){return JSON.parse(JSON.stringify(net));}
+function tanh(x){return Math.tanh(x);}
+// 前向：返回输出层 4 个 Q + 中间缓存（供反向）
+function forward(net,x){
+  let z1=zeros(8),a1=zeros(8);
+  for(let i=0;i<8;i++){let s=net.b1[i];for(let j=0;j<2;j++)s+=net.W1[i][j]*x[j];z1[i]=s;a1[i]=tanh(s);}
+  let z2=zeros(8),a2=zeros(8);
+  for(let i=0;i<8;i++){let s=net.b2[i];for(let j=0;j<8;j++)s+=net.W2[i][j]*a1[j];z2[i]=s;a2[i]=tanh(s);}
+  let out=zeros(4);
+  for(let i=0;i<4;i++){let s=net.b3[i];for(let j=0;j<8;j++)s+=net.W3[i][j]*a2[j];out[i]=s;}
+  return {out,a1,a2,x};
+}
+function qvals(net,s){return forward(net,feat(s)).out;}
+// 对一个样本做反向，仅对动作 a 的输出有梯度 (target - pred)
+function backprop(net,grads,x,a1,a2,out,a,error){
+  // dL/dout_a = (pred - target) = -error  (我们用 error=target-pred)
+  let dout=zeros(4); dout[a]= -error;       // 只有选中的动作有梯度
+  // 输出层
+  for(let i=0;i<4;i++){
+    grads.b3[i]+=dout[i];
+    for(let j=0;j<8;j++)grads.W3[i][j]+=dout[i]*a2[j];
+  }
+  // 回传到 a2
+  let da2=zeros(8);
+  for(let j=0;j<8;j++){let s=0;for(let i=0;i<4;i++)s+=net.W3[i][j]*dout[i];da2[j]=s;}
+  let dz2=zeros(8);for(let j=0;j<8;j++)dz2[j]=da2[j]*(1-a2[j]*a2[j]);
+  for(let i=0;i<8;i++){grads.b2[i]+=dz2[i];for(let j=0;j<8;j++)grads.W2[i][j]+=dz2[i]*a1[j];}
+  // 回传到 a1
+  let da1=zeros(8);
+  for(let j=0;j<8;j++){let s=0;for(let i=0;i<8;i++)s+=net.W2[i][j]*dz2[i];da1[j]=s;}
+  let dz1=zeros(8);for(let j=0;j<8;j++)dz1[j]=da1[j]*(1-a1[j]*a1[j]);
+  for(let i=0;i<8;i++){grads.b1[i]+=dz1[i];for(let j=0;j<2;j++)grads.W1[i][j]+=dz1[i]*x[j];}
+}
+function zeroGrads(){return{W1:randMat(8,2).map(r=>r.map(()=>0)),b1:zeros(8),
+  W2:randMat(8,8).map(r=>r.map(()=>0)),b2:zeros(8),W3:randMat(4,8).map(r=>r.map(()=>0)),b3:zeros(4)};}
+function applyGrads(net,grads,lr,n){
+  for(let i=0;i<8;i++){net.b1[i]-=lr*grads.b1[i]/n;for(let j=0;j<2;j++)net.W1[i][j]-=lr*grads.W1[i][j]/n;}
+  for(let i=0;i<8;i++){net.b2[i]-=lr*grads.b2[i]/n;for(let j=0;j<8;j++)net.W2[i][j]-=lr*grads.W2[i][j]/n;}
+  for(let i=0;i<4;i++){net.b3[i]-=lr*grads.b3[i]/n;for(let j=0;j<8;j++)net.W3[i][j]-=lr*grads.W3[i][j]/n;}
+}
+
+// ================= DQN 主体 =================
+let net, target, buffer, BUF_CAP=128, BATCH=16, LR=0.05, SYNC_EVERY=50;
+let curState, totalSteps, episode, epSteps, EPS, lossHist, syncCount, lastSampled=[];
+
+function reset(){
+  net=makeNet(); target=clone(net);
+  buffer=[]; curState=START; totalSteps=0; episode=0; epSteps=0; EPS=1.0;
+  lossHist=[]; syncCount=0; lastSampled=[]; logLines=[];
+  log('网络初始化（随机权重），目标网络 = 主网络副本。','b');
+  render();
+}
+function chooseAction(s){
+  if(Math.random()<EPS)return Math.floor(Math.random()*4);
+  let q=qvals(net,s),mx=Math.max(...q);
+  let best=q.map((v,i)=>v===mx?i:-1).filter(i=>i>=0);
+  return best[Math.floor(Math.random()*best.length)];
+}
+function trainBatch(){
+  if(buffer.length<BATCH)return null;
+  // 随机抽样
+  let idxs=[];for(let i=0;i<BATCH;i++)idxs.push(Math.floor(Math.random()*buffer.length));
+  lastSampled=idxs;
+  let grads=zeroGrads(), totalLoss=0;
+  for(const i of idxs){
+    const e=buffer[i];
+    // target：终点后无未来
+    let maxNext = e.done ? 0 : Math.max(...qvals(target,e.s2));
+    let y = e.r + GAMMA*maxNext;             // <-- target，常数
+    const fw=forward(net,feat(e.s));
+    let pred=fw.out[e.a];
+    let error=y-pred;                        // target - 预测
+    totalLoss += 0.5*error*error;
+    backprop(net,grads,fw.x,fw.a1,fw.a2,fw.out,e.a,error);
+  }
+  applyGrads(net,grads,LR,BATCH);
+  let loss=totalLoss/BATCH;
+  lossHist.push(loss); if(lossHist.length>120)lossHist.shift();
+  return loss;
+}
+function stepOnce(){
+  if(curState===GOAL){startEpisode();return false;}
+  const s=curState, a=chooseAction(s);
+  const s2=nextState(s,a), done=(s2===GOAL);
+  const r=done?GOAL_R:STEP_R;
+  // 存入 buffer
+  buffer.push({s,a,r,s2,done});
+  if(buffer.length>BUF_CAP)buffer.shift();
+  totalSteps++; epSteps++; curState=s2;
+  // 训练一次
+  let loss=trainBatch();
+  // 同步 target
+  if(totalSteps%SYNC_EVERY===0){target=clone(net);syncCount++;
+    log(`★ 第 ${totalSteps} 步：目标网络同步 Q_target ← Q_θ`,'g');
+    document.getElementById('s-sync').classList.add('tgtflash');
+    setTimeout(()=>document.getElementById('s-sync').classList.remove('tgtflash'),600);
+  }
+  if(done){log(`到达终点！本幕 ${epSteps} 步`,'g');}
+  render(loss);
+  return done;
+}
+function startEpisode(){episode++;curState=START;epSteps=0;EPS=Math.max(0.05,Math.pow(0.97,episode));render();}
+async function runEpisode(animate){
+  if(curState===GOAL||epSteps>0)startEpisode();
+  let g=0;while(curState!==GOAL&&g<150){const d=stepOnce();g++;if(animate)await sleep(delay());if(d)break;}
+}
+
+// ================= 渲染 =================
+function render(loss){
+  // maze + 最优箭头
+  const maze=document.getElementById('maze');maze.innerHTML='';
+  for(let s=0;s<N*N;s++){
+    const d=document.createElement('div');d.className='mcell';
+    if(isWall(s)){d.classList.add('wall');maze.appendChild(d);continue;}
+    if(s===GOAL){d.classList.add('goal');d.textContent='🏁';maze.appendChild(d);continue;}
+    if(s===curState)d.classList.add('agent');
+    // 最优动作箭头
+    let q=qvals(net,s),mx=Math.max(...q),bi=q.indexOf(mx);
+    const ar=document.createElement('div');ar.className='qarrow';ar.textContent=ACTIONS[bi];
+    ar.style.bottom='2px';ar.style.right='3px';d.appendChild(ar);
+    maze.appendChild(d);
+  }
+  // buffer
+  const buf=document.getElementById('buffer');buf.innerHTML='';
+  for(let i=0;i<BUF_CAP;i++){
+    const c=document.createElement('div');c.className='bchip';
+    if(i<buffer.length)c.classList.add('filled');
+    if(lastSampled.includes(i))c.classList.add('sampled');
+    buf.appendChild(c);
+  }
+  // net diagram
+  drawNet();
+  // loss curve
+  drawLoss();
+  // stats
+  document.getElementById('s-ep').textContent=episode;
+  document.getElementById('s-steps').textContent=totalSteps;
+  document.getElementById('s-eps').textContent=EPS.toFixed(2);
+  document.getElementById('s-buf').textContent=buffer.length;
+  document.getElementById('s-loss').textContent=(loss!=null)?loss.toFixed(3):(lossHist.length?lossHist[lossHist.length-1].toFixed(3):'—');
+  document.getElementById('s-sync').textContent=syncCount;
+}
+function drawNet(){
+  const svg=document.getElementById('net');
+  const layers=[2,8,8,4], xs=[40,140,240,330], colW=svg.viewBox.baseVal.width;
+  let H=220;
+  function ypos(n,i){return H/(n+1)*(i+1);}
+  let html='';
+  // 连线（按权重明暗）
+  function lineSet(W,x0,x1,n0,n1){
+    let mx=0.001;for(let i=0;i<n1;i++)for(let j=0;j<n0;j++)mx=Math.max(mx,Math.abs(W[i][j]));
+    for(let i=0;i<n1;i++)for(let j=0;j<n0;j++){
+      let t=Math.min(1,Math.abs(W[i][j])/mx);
+      let col=W[i][j]>=0?`rgba(63,185,80,${0.12+t*0.6})`:`rgba(248,81,73,${0.12+t*0.6})`;
+      html+=`<line x1="${x0}" y1="${ypos(n0,j)}" x2="${x1}" y2="${ypos(n1,i)}" stroke="${col}" stroke-width="${0.4+t*1.2}"/>`;
+    }
+  }
+  lineSet(net.W1,xs[0],xs[1],2,8);
+  lineSet(net.W2,xs[1],xs[2],8,8);
+  lineSet(net.W3,xs[2],xs[3],8,4);
+  // 节点
+  const labels=[['行','列'],null,null,['↑','↓','←','→']];
+  for(let L=0;L<4;L++){
+    for(let i=0;i<layers[L];i++){
+      let y=ypos(layers[L],i);
+      html+=`<circle cx="${xs[L]}" cy="${y}" r="6" fill="#161b22" stroke="${L===0?'#58a6ff':L===3?'#ffb454':'#6e7681'}" stroke-width="1.5"/>`;
+      if(labels[L])html+=`<text x="${xs[L]+(L===3?12:-12)}" y="${y+3}" font-size="9" fill="#c9d1d9" font-family="Space Mono" text-anchor="${L===3?'start':'end'}">${labels[L][i]}</text>`;
+    }
+  }
+  svg.innerHTML=html;
+}
+function drawLoss(){
+  const svg=document.getElementById('loss');const W=360,H=140,pad=24;
+  if(lossHist.length<2){svg.innerHTML=`<text x="${W/2}" y="${H/2}" fill="#6e7681" font-size="11" text-anchor="middle" font-family="Space Mono">等待训练数据…</text>`;return;}
+  let mx=Math.max(...lossHist),mn=Math.min(...lossHist);if(mx===mn)mx=mn+1;
+  let pts=lossHist.map((v,i)=>{
+    let x=pad+(W-2*pad)*i/(lossHist.length-1);
+    let y=H-pad-(H-2*pad)*(v-mn)/(mx-mn);return `${x.toFixed(1)},${y.toFixed(1)}`;
+  }).join(' ');
+  svg.innerHTML=`<polyline points="${pts}" fill="none" stroke="#ffb454" stroke-width="1.5"/>
+    <text x="${pad}" y="14" fill="#6e7681" font-size="9" font-family="Space Mono">max ${mx.toFixed(2)}</text>
+    <text x="${pad}" y="${H-6}" fill="#6e7681" font-size="9" font-family="Space Mono">min ${mn.toFixed(3)}</text>`;
+}
+
+// ================= 日志 / 工具 =================
+let logLines=[];
+function log(m,c=''){logLines.unshift(`<div class="${c}">${m}</div>`);if(logLines.length>50)logLines.pop();document.getElementById('log').innerHTML=logLines.join('');}
+function sleep(ms){return new Promise(r=>setTimeout(r,ms));}
+function delay(){let v=+document.getElementById('speed').value;return Math.round(180*(1-v/100))+5;}
+let busy=false;function lock(b){busy=b;['step','ep','train','reset'].forEach(id=>document.getElementById(id).disabled=b);}
+
+document.getElementById('step').onclick=()=>{if(!busy)stepOnce();};
+document.getElementById('ep').onclick=async()=>{if(busy)return;lock(true);await runEpisode(true);lock(false);};
+document.getElementById('train').onclick=async()=>{if(busy)return;lock(true);
+  for(let i=0;i<200;i++){await runEpisode(false);if(i%10===0){render();await sleep(1);}}
+  render();log('★ 训练完成。看迷宫里的箭头是否连成一条绕墙到终点的路。','g');lock(false);};
+document.getElementById('reset').onclick=()=>{if(!busy)reset();};
+
+reset();
+</script>
+</body>
+</html>
