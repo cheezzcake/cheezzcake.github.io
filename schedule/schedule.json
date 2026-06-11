@@ -193,7 +193,7 @@
     "title": "高等数学：幂级数",
     "type": "math",
     "date": "2026-06-11",
-    "completed": false
+    "completed": true
   },
   {
     "id": "review-20260612-thermal-phase-transition",
@@ -207,7 +207,7 @@
     "title": "史纲：看课 4/8",
     "type": "general",
     "date": "2026-06-10",
-    "completed": false
+    "completed": true
   },
   {
     "id": "review-20260609-ai-multi-agent",
@@ -228,14 +228,14 @@
     "title": "高等数学：泰勒展开",
     "type": "math",
     "date": "2026-06-10",
-    "completed": false
+    "completed": true
   },
   {
     "id": "review-20260613-thermal-liquid",
     "title": "热学：液体",
     "type": "physics",
     "date": "2026-06-11",
-    "completed": false
+    "completed": true
   },
   {
     "id": "review-20260611-history-lecture-5",
