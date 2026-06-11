@@ -53,14 +53,118 @@
   .generated-body > h2:first-child { margin-top:0; }
   .generated-body { min-width:0; overflow-wrap:anywhere; }
   .generated-body .math { overflow-x:auto; max-width:100%; }
+  .generated-body .math.display {
+    display:block;
+    border:1px solid var(--line);
+    background:linear-gradient(180deg, rgba(88,166,255,.07), rgba(22,27,34,.96));
+    border-radius:8px;
+    padding:14px 16px;
+    margin:14px 0;
+  }
+  .generated-body h3 {
+    border-left:3px solid var(--amber);
+    padding-left:10px;
+  }
+  .nlp-card, .cyk-demo {
+    border:1px solid var(--line);
+    background:var(--panel);
+    border-radius:8px;
+    padding:16px;
+    margin:16px 0;
+  }
+  .nlp-card-title {
+    color:var(--amber);
+    font-family:'Space Mono', monospace;
+    font-weight:700;
+    margin-bottom:10px;
+  }
+  .grammar-grid {
+    display:grid;
+    grid-template-columns:repeat(2,minmax(0,1fr));
+    gap:10px;
+    margin-top:12px;
+  }
+  .grammar-rule {
+    border:1px solid var(--line);
+    background:var(--panel-2);
+    border-radius:6px;
+    padding:10px 12px;
+    font-family:'Space Mono', monospace;
+    color:var(--ink);
+  }
+  .phase-tabs {
+    display:flex;
+    flex-wrap:wrap;
+    gap:8px;
+    margin:14px 0;
+  }
+  .phase-tab {
+    font-family:'Space Mono', monospace;
+    font-size:13px;
+    background:var(--panel-2);
+    color:var(--ink);
+    border:1px solid var(--line);
+    border-radius:6px;
+    padding:8px 12px;
+    cursor:pointer;
+  }
+  .phase-tab:hover, .phase-tab.is-active {
+    border-color:var(--amber);
+    color:var(--amber);
+    background:rgba(255,180,84,.07);
+  }
+  .phase-panel[hidden] { display:none; }
+  .phase-panel {
+    max-width:100%;
+    overflow-x:auto;
+  }
+  .phase-panel h4 {
+    color:var(--blue);
+    font-family:'Space Mono','Noto Sans SC',monospace;
+    margin:12px 0 8px;
+  }
+  .cyk-table {
+    display:table;
+    min-width:620px;
+  }
+  .cyk-table td:first-child, .cyk-table th:first-child {
+    color:var(--dim);
+    font-family:'Space Mono', monospace;
+    width:54px;
+  }
+  .cyk-table td:not(:empty) {
+    color:#f0f6fc;
+    font-family:'Space Mono', monospace;
+  }
+  .mini-note {
+    color:var(--dim);
+    font-size:13px;
+  }
   mjx-container { max-width:100%; }
   mjx-container[jax="SVG"][display="true"] { display:block; overflow-x:auto; overflow-y:hidden; }
-  @media (max-width:940px) { .layout{grid-template-columns:1fr;} aside{position:static;height:auto;border-right:0;border-bottom:1px solid var(--line);} main{padding:20px;} .grid-2,.note-strip{grid-template-columns:1fr;} h1{font-size:26px;} }
+  @media (max-width:940px) { .layout{grid-template-columns:1fr;} aside{position:static;height:auto;border-right:0;border-bottom:1px solid var(--line);} main{padding:20px;} .grid-2,.note-strip,.grammar-grid{grid-template-columns:1fr;} h1{font-size:26px;} }
 </style>
 <script>
   window.MathJax = { tex: { inlineMath: [['$', '$'], ['\\(', '\\)']] }, svg: { fontCache: 'global' } };
 </script>
 <script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
+<script defer>
+  document.addEventListener('DOMContentLoaded', () => {
+    document.querySelectorAll('[data-cyk-demo]').forEach((demo) => {
+      const tabs = Array.from(demo.querySelectorAll('[data-phase]'));
+      const panels = Array.from(demo.querySelectorAll('[data-panel]'));
+      tabs.forEach((tab) => {
+        tab.addEventListener('click', () => {
+          const phase = tab.dataset.phase;
+          tabs.forEach((item) => item.classList.toggle('is-active', item === tab));
+          panels.forEach((panel) => {
+            panel.hidden = panel.dataset.panel !== phase;
+          });
+        });
+      });
+    });
+  });
+</script>
 </head>
 <body>
 <div class="layout">
@@ -94,7 +198,83 @@
 <h1 id="natural-language-processing-nlp">Natural Language Processing (NLP)</h1><h2 id="context-free-grammars">Context-Free Grammars</h2><p>A context-free grammar (CFG) is a formal system used to describe the syntax of a language. It consists of a set of production rules that define how symbols can be combined to form valid sentences in the language.</p><p><strong>Examples:</strong></p><p><span class="math display">\[
 \text{S} \rightarrow \text{NP} \; \text{VP}\\
 \text{NP} \rightarrow \text{N} | \text{DN} \\
-\]</span></p><h3 id="cnf-chomsky-normal-form">CNF (Chomsky Normal Form)</h3><p>A context-free grammar is in Chomsky Normal Form (CNF) if all production rules are of the form: 1. A → BC (where A, B, and C are non-terminal symbols) 2. A → a (where A is a non-terminal symbol and a is a terminal symbol) 3. S → <span class="math inline">\(\empty\)</span> (where S is the start symbol and ε is the empty string)</p><h3 id="cyk-algorithm">CYK Algorithm</h3><p>List all the possibilities in a staircase manner. Start with the smallest substrings and build up to the full string.</p><p>Examples: &gt; S → AB | BC &gt; A → BA | a &gt; B → CC | b &gt; C → AB | a</p><p>sentence = “baaba”</p><p><strong>Phase 1</strong>: Fill the table with the terminal symbols | | b | a | a | b | a | |—|—|—|—|—|—| | 1 | B |A,C|A,C| B |A,C| | 2 | | | | | | | 3 | | | | | | | 4 | | | | | | | 5 | | | | | |</p><p><strong>Phase 2</strong>: Fill the table with non-terminal symbols based on the production rules | | b | a | a | b | a | |—|—|—|—|—|—| | 1 | B |A,C|A,C| B |A,C| | 2 |S,A| B |S,C|S,A| | | 3 | | | | | | | 4 | | | | | | | 5 | | | | | |</p><p>For example, for X(3,4)=“ab”, X(3,4)= {AB, CB} = {AB, <del>CB</del>} = {S, C}</p><p><strong>Phase 3</strong>: Goes on</p><table><thead><tr class="header"><th></th><th>b</th><th>a</th><th>a</th><th>b</th><th>a</th></tr></thead><tbody><tr class="odd"><td>1</td><td>B</td><td>A,C</td><td>A,C</td><td>B</td><td>A,C</td></tr><tr class="even"><td>2</td><td>S,A</td><td>B</td><td>S,C</td><td>S,A</td><td></td></tr><tr class="odd"><td>3</td><td>NaN</td><td>B</td><td>B</td><td></td><td></td></tr><tr class="even"><td>4</td><td>NaN</td><td>SAC</td><td></td><td></td><td></td></tr><tr class="odd"><td>5</td><td>SAC</td><td></td><td></td><td></td><td></td></tr></tbody></table><p>For example, for X(2,4)=“aab”, X(2,4) = X(2,2)X(3,4) U X(2,3)X(4,4) = {A,C} {S,C} U {B} {B} = {S,A,C}</p><p>Finally, we check if the start symbol S is in X(1,5). If it is, then the string “baaba” can be generated by the grammar.</p><h2 id="tokenization">Tokenization</h2><p>Tokenization is the process of breaking down a text into smaller units called tokens. This is easy and obvious.</p><h2 id="statistical-language-models">Statistical Language Models</h2><h3 id="bag-of-words-bow">Bag of Words (BoW)</h3><p><strong>Procedure</strong>: Data Collection → Dictionary Creation (Set of unique words) → Vectorization (Count the frequency of each word in the document)</p><h3 id="naive-bayes-classifier">Naive Bayes Classifier</h3><p>The Naive Bayes Classifier is based on the Bayes Theorem that <span class="math display">\[
+\]</span></p><h3 id="cnf-chomsky-normal-form">CNF (Chomsky Normal Form)</h3>
+<div class="nlp-card">
+  <div class="nlp-card-title">CNF rule shapes</div>
+  <p>A context-free grammar is in Chomsky Normal Form (CNF) if all production rules are of the form:</p>
+  <ol>
+    <li>A -> BC (where A, B, and C are non-terminal symbols)</li>
+    <li>A -> a (where A is a non-terminal symbol and a is a terminal symbol)</li>
+    <li>S -> <span class="math inline">\(\emptyset\)</span> (where S is the start symbol and epsilon is the empty string)</li>
+  </ol>
+</div>
+
+<h3 id="cyk-algorithm">CYK Algorithm</h3>
+<p>List all the possibilities in a staircase manner. Start with the smallest substrings and build up to the full string.</p>
+<div class="cyk-demo" data-cyk-demo>
+  <div class="nlp-card-title">Example grammar and sentence</div>
+  <p class="mini-note">sentence = <span class="mono">"baaba"</span></p>
+  <div class="grammar-grid" aria-label="CYK grammar rules">
+    <div class="grammar-rule">S -> AB | BC</div>
+    <div class="grammar-rule">A -> BA | a</div>
+    <div class="grammar-rule">B -> CC | b</div>
+    <div class="grammar-rule">C -> AB | a</div>
+  </div>
+
+  <div class="phase-tabs" role="tablist" aria-label="CYK phases">
+    <button class="phase-tab is-active" type="button" data-phase="1">Phase 1</button>
+    <button class="phase-tab" type="button" data-phase="2">Phase 2</button>
+    <button class="phase-tab" type="button" data-phase="3">Phase 3</button>
+  </div>
+
+  <div class="phase-panel" data-panel="1">
+    <h4>Phase 1: Fill terminals</h4>
+    <p>Fill the table with the terminal symbols.</p>
+    <table class="cyk-table">
+      <thead><tr><th></th><th>b</th><th>a</th><th>a</th><th>b</th><th>a</th></tr></thead>
+      <tbody>
+        <tr><td>1</td><td>B</td><td>A,C</td><td>A,C</td><td>B</td><td>A,C</td></tr>
+        <tr><td>2</td><td></td><td></td><td></td><td></td><td></td></tr>
+        <tr><td>3</td><td></td><td></td><td></td><td></td><td></td></tr>
+        <tr><td>4</td><td></td><td></td><td></td><td></td><td></td></tr>
+        <tr><td>5</td><td></td><td></td><td></td><td></td><td></td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="phase-panel" data-panel="2" hidden>
+    <h4>Phase 2: Combine length-2 substrings</h4>
+    <p>Fill the table with non-terminal symbols based on the production rules.</p>
+    <table class="cyk-table">
+      <thead><tr><th></th><th>b</th><th>a</th><th>a</th><th>b</th><th>a</th></tr></thead>
+      <tbody>
+        <tr><td>1</td><td>B</td><td>A,C</td><td>A,C</td><td>B</td><td>A,C</td></tr>
+        <tr><td>2</td><td>S,A</td><td>B</td><td>S,C</td><td>S,A</td><td></td></tr>
+        <tr><td>3</td><td></td><td></td><td></td><td></td><td></td></tr>
+        <tr><td>4</td><td></td><td></td><td></td><td></td><td></td></tr>
+        <tr><td>5</td><td></td><td></td><td></td><td></td><td></td></tr>
+      </tbody>
+    </table>
+    <p>For example, for X(3,4)="ab", X(3,4)= {AB, CB} = {AB, <del>CB</del>} = {S, C}.</p>
+  </div>
+
+  <div class="phase-panel" data-panel="3" hidden>
+    <h4>Phase 3: Continue upward to the full string</h4>
+    <p>Goes on.</p>
+    <table class="cyk-table">
+      <thead><tr><th></th><th>b</th><th>a</th><th>a</th><th>b</th><th>a</th></tr></thead>
+      <tbody>
+        <tr><td>1</td><td>B</td><td>A,C</td><td>A,C</td><td>B</td><td>A,C</td></tr>
+        <tr><td>2</td><td>S,A</td><td>B</td><td>S,C</td><td>S,A</td><td></td></tr>
+        <tr><td>3</td><td>NaN</td><td>B</td><td>B</td><td></td><td></td></tr>
+        <tr><td>4</td><td>NaN</td><td>SAC</td><td></td><td></td><td></td></tr>
+        <tr><td>5</td><td>SAC</td><td></td><td></td><td></td><td></td></tr>
+      </tbody>
+    </table>
+    <p>For example, for X(2,4)="aab", X(2,4) = X(2,2)X(3,4) U X(2,3)X(4,4) = {A,C} {S,C} U {B} {B} = {S,A,C}.</p>
+    <p>Finally, we check if the start symbol S is in X(1,5). If it is, then the string "baaba" can be generated by the grammar.</p>
+  </div>
+</div><h2 id="tokenization">Tokenization</h2><p>Tokenization is the process of breaking down a text into smaller units called tokens. This is easy and obvious.</p><h2 id="statistical-language-models">Statistical Language Models</h2><h3 id="bag-of-words-bow">Bag of Words (BoW)</h3><p><strong>Procedure</strong>: Data Collection → Dictionary Creation (Set of unique words) → Vectorization (Count the frequency of each word in the document)</p><h3 id="naive-bayes-classifier">Naive Bayes Classifier</h3><p>The Naive Bayes Classifier is based on the Bayes Theorem that <span class="math display">\[
 P(B|A) = \frac{P(A|B) \times P(B)} {P(A)}
 \]</span></p><p>Let’s start with an example &gt; <span class="math inline">\(P(☺|\text{My grandson loved it})\)</span></p><p>To solve this, we’re going to apply the Bayes law that is:</p><p><span class="math display">\[
 P(☺|\text{My grandson loved it}) = \frac{P(\text{My}|☺) \times P(\text{grandson}|☺) \times P(\text{loved}|☺) \times P(\text{it}|☺) \times P(☺)}{P(\text{My grandson loved it})}

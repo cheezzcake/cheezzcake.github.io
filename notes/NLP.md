@@ -13,7 +13,7 @@ $$
 A context-free grammar is in Chomsky Normal Form (CNF) if all production rules are of the form:
 1. A → BC (where A, B, and C are non-terminal symbols)
 2. A → a (where A is a non-terminal symbol and a is a terminal symbol)
-3. S → $\empty$ (where S is the start symbol and ε is the empty string)
+3. S → $\emptyset$ (where S is the start symbol and ε is the empty string)
 
 ### CYK Algorithm
 
