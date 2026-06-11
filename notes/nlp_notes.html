@@ -280,13 +280,13 @@
   }
   .tf-architecture {
     display:grid;
-    grid-template-columns:minmax(92px,.55fr) minmax(180px,1fr) minmax(120px,.4fr) minmax(180px,1fr) minmax(92px,.55fr);
-    gap:12px;
-    align-items:center;
+    grid-template-columns:minmax(0, 1fr) 0;
+    gap:14px;
+    align-items:start;
     transition:grid-template-columns .22s ease;
   }
   .transformer-lab.is-open .tf-architecture {
-    grid-template-columns:minmax(80px,.42fr) minmax(150px,.78fr) minmax(80px,.3fr) minmax(150px,.78fr) minmax(80px,.42fr) minmax(280px,.92fr);
+    grid-template-columns:minmax(0, 1fr) minmax(280px, .42fr);
   }
   .tf-io {
     border-color:rgba(88,166,255,.55);
@@ -308,6 +308,88 @@
   .tf-layer-node {
     width:100%;
     min-height:48px;
+  }
+  .tf-diagram {
+    position:relative;
+    min-height:640px;
+    transition:transform .22s ease;
+  }
+  .transformer-lab.is-open .tf-diagram {
+    transform:translateX(-10px);
+  }
+  .tf-model-frame {
+    position:absolute;
+    inset:74px 18px 72px;
+    border:0;
+    border-radius:0;
+    background:transparent;
+  }
+  .tf-stack-visual {
+    position:absolute;
+    top:16px;
+    bottom:18px;
+    width:36%;
+    display:grid;
+    grid-template-rows:repeat(6, minmax(48px, 1fr));
+    gap:10px;
+    z-index:2;
+  }
+  .tf-stack-visual.encoder-stack { left:14px; }
+  .tf-stack-visual.decoder-stack { right:14px; }
+  .tf-stack-visual .tf-layer-node {
+    min-height:0;
+    height:100%;
+    border-width:2px;
+  }
+  .tf-stack-visual.encoder-stack .tf-layer-node {
+    background:var(--panel-2);
+  }
+  .tf-stack-visual.decoder-stack .tf-layer-node {
+    background:var(--panel-2);
+  }
+  .tf-diagram-label {
+    position:absolute;
+    color:var(--dim);
+    font-family:'Space Mono', monospace;
+    font-size:13px;
+    letter-spacing:.04em;
+  }
+  .tf-input-label { left:0; bottom:18px; }
+  .tf-output-label { right:330px; top:22px; }
+  .tf-input-node, .tf-output-node {
+    position:absolute;
+    border-width:2px;
+    min-height:58px;
+    z-index:3;
+  }
+  .tf-input-node {
+    left:90px;
+    bottom:0;
+    width:270px;
+    background:var(--panel-2);
+    border-color:var(--line);
+  }
+  .tf-output-node {
+    right:50px;
+    top:0;
+    width:300px;
+    background:var(--panel-2);
+    border-color:var(--line);
+  }
+  .tf-diagram-arrows {
+    position:absolute;
+    inset:0;
+    width:100%;
+    height:100%;
+    pointer-events:none;
+    z-index:1;
+  }
+  .tf-diagram-arrows line,
+  .tf-diagram-arrows path {
+    stroke:#77808a;
+    stroke-width:2.4;
+    fill:none;
+    marker-end:url(#tf-arrow);
   }
   .tf-memory {
     color:var(--purple);
@@ -394,6 +476,7 @@
   mjx-container { max-width:100%; }
   mjx-container[jax="SVG"][display="true"] { display:block; overflow-x:auto; overflow-y:hidden; }
   @media (max-width:940px) { .layout{grid-template-columns:1fr;} aside{position:static;height:auto;border-right:0;border-bottom:1px solid var(--line);} main{padding:20px;} .grid-2,.note-strip,.grammar-grid,.transformer-stage,.tf-architecture,.transformer-lab.is-open .tf-architecture{grid-template-columns:1fr;} h1{font-size:26px;} .tf-line{height:28px;width:1px;margin:0 auto;background:linear-gradient(180deg, transparent, var(--blue), transparent);} .tf-line::after{content:"v";right:-5px;top:16px;} .tf-memory-line{height:28px;width:1px;margin:0 auto;background:linear-gradient(180deg, transparent, var(--purple), transparent);} .tf-memory-line::after{content:"v";right:-5px;top:16px;} .tf-inspector{opacity:1;transform:none;pointer-events:auto;} }
+  @media (max-width:720px) { .tf-diagram{min-height:720px; overflow-x:auto;} .tf-model-frame{min-width:620px; inset:80px 0 86px;} .tf-diagram-arrows{min-width:660px;} .tf-input-node{left:70px; width:240px;} .tf-output-node{left:350px; right:auto; width:250px;} .tf-output-label{left:270px; right:auto;} }
 </style>
 <script>
   window.MathJax = { tex: { inlineMath: [['$', '$'], ['\\(', '\\)']] }, svg: { fontCache: 'global' } };
@@ -672,33 +755,54 @@ h_t &amp;= o_t \odot \tanh(c_t) &amp;&amp; \text{hidden state output}
 <div class="transformer-lab" data-transformer-lab>
   <div class="transformer-workbench">
     <div class="tf-architecture" aria-label="Transformer topology with full encoder and decoder stacks">
-      <button class="tf-node tf-io is-active" type="button" data-tf="input">INPUT<br><span class="mini-note">token + position</span></button>
-      <div class="tf-line" aria-hidden="true"></div>
-      <div class="tf-layer-stack">
-        <div class="tf-stack-title">Encoder Stack x N</div>
-        <div class="tf-layer-list">
-          <button class="tf-node tf-layer-node" type="button" data-tf="encoder">Encoder 1</button>
-          <button class="tf-node tf-layer-node" type="button" data-tf="encoder">Encoder 2</button>
-          <button class="tf-node tf-layer-node" type="button" data-tf="encoder">...</button>
-          <button class="tf-node tf-layer-node" type="button" data-tf="encoder">Encoder N</button>
+      <div class="tf-diagram">
+        <div class="tf-diagram-label tf-output-label">OUTPUT</div>
+        <button class="tf-node tf-output-node" type="button" data-tf="output">I &nbsp; am &nbsp; a &nbsp; student</button>
+        <div class="tf-model-frame">
+          <svg class="tf-diagram-arrows" viewBox="0 0 1000 520" preserveAspectRatio="none" aria-hidden="true">
+            <defs>
+              <marker id="tf-arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+                <path d="M 0 0 L 10 5 L 0 10 z" fill="#77808a"></path>
+              </marker>
+            </defs>
+            <line x1="185" y1="535" x2="185" y2="496"></line>
+            <line x1="185" y1="420" x2="185" y2="366"></line>
+            <line x1="185" y1="337" x2="185" y2="283"></line>
+            <line x1="185" y1="254" x2="185" y2="200"></line>
+            <line x1="185" y1="171" x2="185" y2="117"></line>
+            <line x1="185" y1="88" x2="185" y2="34"></line>
+            <line x1="830" y1="420" x2="830" y2="366"></line>
+            <line x1="830" y1="337" x2="830" y2="283"></line>
+            <line x1="830" y1="254" x2="830" y2="200"></line>
+            <line x1="830" y1="171" x2="830" y2="117"></line>
+            <line x1="830" y1="88" x2="830" y2="34"></line>
+            <line x1="365" y1="68" x2="650" y2="68"></line>
+            <line x1="365" y1="68" x2="650" y2="150"></line>
+            <line x1="365" y1="68" x2="650" y2="232"></line>
+            <line x1="365" y1="68" x2="650" y2="314"></line>
+            <line x1="365" y1="68" x2="650" y2="396"></line>
+            <line x1="830" y1="34" x2="830" y2="-35"></line>
+          </svg>
+          <div class="tf-stack-visual encoder-stack" aria-label="Encoder stack">
+            <button class="tf-node tf-layer-node" type="button" data-tf="encoder">ENCODER</button>
+            <button class="tf-node tf-layer-node" type="button" data-tf="encoder">ENCODER</button>
+            <button class="tf-node tf-layer-node" type="button" data-tf="encoder">ENCODER</button>
+            <button class="tf-node tf-layer-node" type="button" data-tf="encoder">ENCODER</button>
+            <button class="tf-node tf-layer-node" type="button" data-tf="encoder">ENCODER</button>
+            <button class="tf-node tf-layer-node" type="button" data-tf="encoder">ENCODER</button>
+          </div>
+          <div class="tf-stack-visual decoder-stack" aria-label="Decoder stack">
+            <button class="tf-node tf-layer-node" type="button" data-tf="decoder">DECODER</button>
+            <button class="tf-node tf-layer-node" type="button" data-tf="decoder">DECODER</button>
+            <button class="tf-node tf-layer-node" type="button" data-tf="decoder">DECODER</button>
+            <button class="tf-node tf-layer-node" type="button" data-tf="decoder">DECODER</button>
+            <button class="tf-node tf-layer-node" type="button" data-tf="decoder">DECODER</button>
+            <button class="tf-node tf-layer-node" type="button" data-tf="decoder">DECODER</button>
+          </div>
         </div>
+        <div class="tf-diagram-label tf-input-label">INPUT</div>
+        <button class="tf-node tf-input-node is-active" type="button" data-tf="input">Je &nbsp; suis &nbsp; étudiant</button>
       </div>
-      <div class="tf-memory" aria-hidden="true">
-        <div class="tf-memory-line"></div>
-        <div>Key / Value memory<br>from every encoder</div>
-        <div class="tf-memory-line"></div>
-      </div>
-      <div class="tf-layer-stack">
-        <div class="tf-stack-title">Decoder Stack x N</div>
-        <div class="tf-layer-list">
-          <button class="tf-node tf-layer-node" type="button" data-tf="decoder">Decoder 1</button>
-          <button class="tf-node tf-layer-node" type="button" data-tf="decoder">Decoder 2</button>
-          <button class="tf-node tf-layer-node" type="button" data-tf="decoder">...</button>
-          <button class="tf-node tf-layer-node" type="button" data-tf="decoder">Decoder N</button>
-        </div>
-      </div>
-      <div class="tf-line" aria-hidden="true"></div>
-      <button class="tf-node tf-io" type="button" data-tf="output">OUTPUT<br><span class="mini-note">next token</span></button>
       <aside class="tf-inspector" data-tf-inspector>
         <h4 data-tf-inspector-title>Layer internals</h4>
         <div class="tf-inner-list" data-tf-inspector-body>
