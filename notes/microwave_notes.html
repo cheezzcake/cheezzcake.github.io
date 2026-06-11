@@ -1,0 +1,259 @@
+﻿<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pozar Microwave Engineering Notes</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Noto+Sans+SC:wght@400;500;700&display=swap');
+  :root { --bg:#0e1117; --panel:#161b22; --panel-2:#1c2128; --line:#2d333b; --ink:#c9d1d9; --dim:#6e7681; --amber:#ffb454; --green:#3fb950; --red:#f85149; --blue:#58a6ff; --purple:#bc8cff; }
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body { margin:0; background:radial-gradient(circle at 16% 4%, rgba(88,166,255,.08), transparent 34%), radial-gradient(circle at 88% 18%, rgba(255,180,84,.07), transparent 32%), var(--bg); color:var(--ink); font-family:'Noto Sans SC', sans-serif; line-height:1.72; }
+  .layout { display:grid; grid-template-columns:248px minmax(0,1fr); min-height:100vh; }
+  aside { border-right:1px solid var(--line); background:rgba(14,17,23,.78); padding:24px 18px; position:sticky; top:0; height:100vh; overflow:auto; }
+  .brand { font-family:'Space Mono', monospace; color:var(--blue); font-weight:700; font-size:18px; line-height:1.25; margin-bottom:6px; }
+  .source { color:var(--dim); font-size:12px; word-break:break-all; margin-bottom:20px; }
+  nav a { display:block; color:var(--ink); text-decoration:none; border:1px solid transparent; border-radius:6px; padding:7px 9px; font-size:13px; margin:2px 0; }
+  nav a:hover { border-color:var(--line); color:var(--amber); background:rgba(255,180,84,.06); }
+  main { padding:28px; max-width:1180px; width:100%; min-width:0; }
+  header { border-bottom:1px solid var(--line); padding-bottom:20px; margin-bottom:24px; }
+  h1,h2,h3 { font-family:'Space Mono','Noto Sans SC',monospace; line-height:1.2; letter-spacing:0; }
+  h1 { color:var(--blue); font-size:30px; margin:0 0 8px; }
+  .subtitle { color:var(--dim); margin:0; max-width:820px; }
+  section, .content-block { border-top:1px solid var(--line); padding:26px 0 30px; }
+  h2 { color:var(--blue); font-size:20px; margin:0 0 14px; }
+  h3 { color:var(--amber); font-size:15px; margin:22px 0 10px; }
+  p { margin:10px 0; }
+  strong { color:#f0f6fc; }
+  a { color:var(--blue); }
+  code, pre, .mono { font-family:'Space Mono', monospace; }
+  code { color:var(--amber); background:rgba(255,180,84,.08); border:1px solid rgba(255,180,84,.16); border-radius:4px; padding:1px 4px; }
+  pre { background:#0a0d12; border:1px solid var(--line); border-radius:8px; padding:14px 16px; overflow:auto; font-size:13px; }
+  pre code { color:var(--ink); background:transparent; border:0; padding:0; }
+  blockquote { margin:14px 0; border-left:3px solid var(--amber); background:rgba(255,180,84,.06); padding:10px 14px; color:var(--ink); }
+  table { width:100%; border-collapse:collapse; margin:16px 0; background:var(--panel); border:1px solid var(--line); border-radius:8px; overflow:hidden; display:block; overflow-x:auto; }
+  th,td { border:1px solid var(--line); padding:8px 10px; text-align:left; vertical-align:top; }
+  th { color:var(--amber); background:var(--panel-2); font-family:'Space Mono', monospace; }
+  img { max-width:100%; height:auto; border:1px solid var(--line); border-radius:8px; background:#fff; padding:6px; display:block; margin:16px auto; }
+  ul,ol { padding-left:1.4rem; }
+  li { margin:5px 0; }
+  .grid-2 { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:14px; margin:16px 0; }
+  .concept,.equation,.note-strip { border:1px solid var(--line); background:var(--panel); border-radius:8px; }
+  .concept { padding:14px; min-height:100%; }
+  .concept .label { color:var(--dim); font-family:'Space Mono', monospace; font-size:12px; text-transform:uppercase; margin-bottom:3px; }
+  .concept .value { color:var(--amber); font-family:'Space Mono', monospace; font-weight:700; font-size:18px; }
+  .equation { padding:14px 16px; overflow-x:auto; margin:14px 0; }
+  .note-strip { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); overflow:hidden; margin:16px 0; }
+  .note-strip div { padding:14px; border-right:1px solid var(--line); }
+  .note-strip div:last-child { border-right:0; }
+  .note-strip span { display:block; color:var(--dim); font-size:12px; font-family:'Space Mono', monospace; margin-bottom:6px; }
+  .generated-body > h1:first-child { display:none; }
+  .generated-body > h2 { border-top:1px solid var(--line); padding-top:26px; margin-top:30px; }
+  .generated-body > h2:first-child { margin-top:0; }
+  .generated-body { min-width:0; overflow-wrap:anywhere; }
+  .generated-body .math { overflow-x:auto; max-width:100%; }
+  mjx-container { max-width:100%; }
+  mjx-container[jax="SVG"][display="true"] { display:block; overflow-x:auto; overflow-y:hidden; }
+  @media (max-width:940px) { .layout{grid-template-columns:1fr;} aside{position:static;height:auto;border-right:0;border-bottom:1px solid var(--line);} main{padding:20px;} .grid-2,.note-strip{grid-template-columns:1fr;} h1{font-size:26px;} }
+</style>
+<script>
+  window.MathJax = { tex: { inlineMath: [['$', '$'], ['\\(', '\\)']] }, svg: { fontCache: 'global' } };
+</script>
+<script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
+</head>
+<body>
+<div class="layout">
+  <aside>
+    <div class="brand">Microwave Notebook</div>
+    <div class="source">D:/YixuanSu/Notes/MathorPhy/Pozar Microwave Engineering Notes.md</div>
+    <nav>
+      <a href="#map">Reading Map</a>
+      <a href="#the-lumped-element-circuit-model-for-a-transmission-line">Transmission Line</a>
+      <a href="#the-terminated-lossless-transmission-line">Terminated Line</a>
+      <a href="#the-scattering-matrix">Scattering Matrix</a>
+      <a href="#dividers-and-filters">Dividers and Filters</a>
+      <a href="#noise-and-nonlinear-distortion">Noise</a>
+    </nav>
+  </aside>
+  <main>
+    <header>
+      <h1>Pozar Microwave Engineering Notes</h1>
+      <p class="subtitle">围绕传输线、反射、散射矩阵、功分滤波与噪声温度整理的微波工程笔记；正文保留原笔记内容，图片已转为网页相对资源。</p>
+    </header>
+    <section id="map">
+      <h2>Reading Map</h2>
+      <div class="grid-2">
+        <div class="concept"><div class="label">Line Model</div><div class="value">$R,L,G,C \rightarrow Z_0,\gamma$</div><p>从分布参数模型得到传播常数、特性阻抗与无耗极限。</p></div>
+        <div class="concept"><div class="label">Reflection</div><div class="value">$\Gamma,\ \mathrm{SWR},\ Z_{in}$</div><p>端接不匹配带来反射、驻波与输入阻抗变换。</p></div>
+        <div class="concept"><div class="label">Network</div><div class="value">S Matrix</div><p>用入射波和反射波描述多端口网络，连接 VNA 测量语言。</p></div>
+        <div class="concept"><div class="label">System</div><div class="value">Filters / Noise</div><p>周期结构产生通带与阻带，噪声温度和 Y-factor 描述低噪声链路。</p></div>
+      </div>
+    </section>
+    <div class="generated-body">
+<h1 id="pozar-microwave-engineering-notes">Pozar Microwave Engineering Notes</h1><h2 id="the-lumped-element-circuit-model-for-a-transmission-line">2.1 The Lumped-Element Circuit Model for a Transmission Line</h2><p><img src="assets/microwave/image-20260511233052707.png" alt="image-20260511233052707" style="zoom: 80%;" /></p><ul><li>Basic differential equations:</li></ul><p><span class="math display">\[
+\begin{aligned}
+&amp; \frac{\partial v(z, t)}{\partial z}=-R i(z, t)-L \frac{\partial i(z, t)}{\partial t}, \\
+&amp; \frac{\partial i(z, t)}{\partial z}=-G v(z, t)-C \frac{\partial v(z, t)}{\partial t} .
+\end{aligned}
+\]</span></p><ul><li>sinusoidal steady-state condition:</li></ul><p><span class="math display">\[
+\begin{aligned}
+&amp;\begin{aligned}
+&amp; \frac{d^2 V(z)}{d z^2}-\gamma^2 V(z)=0 \\
+&amp; \frac{d^2 I(z)}{d z^2}-\gamma^2 I(z)=0
+\end{aligned}\\
+\text { where }\\
+&amp;\gamma=\alpha+j \beta=\sqrt{(R+j \omega L)(G+j \omega C)}
+\end{aligned}
+\]</span></p><ul><li>Characteristic Impedance:</li></ul><p><span class="math display">\[
+I(z)=\frac{\gamma}{R+j \omega L}\left(V_o^{+} e^{-\gamma z}-V_o^{-} e^{\gamma z}\right), \text{ therefore }Z_0=\frac{R+j \omega L}{\gamma}=\sqrt{\frac{R+j \omega L}{G+j \omega C}}
+\]</span></p><ul><li><strong>Lossless line</strong> requires <span class="math inline">\(\alpha=0\)</span> Clearly <span class="math inline">\(R=G=0\)</span>，then <span class="math display">\[
+Z_0=\sqrt{\frac{L}{C}},\ v=\frac1{\sqrt{LC}}
+\]</span> and it turns into something like electornic magnetic wave</li></ul><h2 id="the-terminated-lossless-transmission-line">2.3 The Terminated Lossless Transmission Line</h2><p><img src="assets/microwave/image-20260512154100107.png" alt="image-20260512154100107" style="zoom: 50%;" /></p><blockquote><p>However, when the line is terminated in an arbitrary load <span class="math inline">\(Z_L\neq Z_0\)</span> (ZL can be a complex value!) the ratio of voltage to current at the load must be <span class="math inline">\(Z_L\)</span>. (while it’s Z0 in the normal case)</p></blockquote><p><span class="math display">\[
+I(z)=\frac{V_o^{+}}{Z_0} e^{-j \beta z}-\frac{V_o^{-}}{Z_0} e^{j \beta z}\text{, and }Z_L=\frac{V(0)}{I(0)}=\frac{V_o^{+}+V_o^{-}}{V_o^{+}-V_o^{-}} Z_0
+\]</span></p><p>therefore <span class="math display">\[
+V_o^{-}=\frac{Z_L-Z_0}{Z_L+Z_0} V_o^{+}\text{, and }V(z)=V_o^{+}\left(e^{-j \beta z}+\Gamma e^{j \beta z}\right)
+\]</span> and there’ll be a reflection unless <span class="math inline">\(Z_L=Z_0\)</span></p><ul><li>Time-average power flow (V, I are amplitudes here) (Gamma : reflection rate of V, i.e. <span class="math inline">\(V_o^-/V_o^+\)</span>)</li></ul><p><span class="math display">\[
+P_{\mathrm{avg}}=\frac{1}{2} \operatorname{Re}\left\{V(z) I(z)^*\right\}=\frac{1}{2} \frac{\left|V_o^{+}\right|^2}{Z_0}\left(1-|\Gamma|^2\right)
+\]</span></p><ul><li>Standing wave</li></ul><blockquote><p>Obvious. Standing Wave Ratio (SWR) <span class="math inline">\(:={V_{\max }}/{V_{\min }}=(1+|\Gamma|)/(1-|\Gamma|) .\)</span>When Z_L -&gt; 0, SWR -&gt; +inf</p></blockquote><ul><li>load with <span class="math inline">\(z\neq0\)</span></li></ul><p><span class="math display">\[
+\Gamma\rightarrow\Gamma e^{-2 j \beta \ell}
+\]</span></p><ul><li>Input impedance (measured impedance from the input ports) <span class="math display">\[
+Z_{\text {in }}=\frac{V(-\ell)}{I(-\ell)}=\frac{V_o^{+}\left(e^{j \beta \ell}+\Gamma e^{-j \beta \ell}\right)}{V_o^{+}\left(e^{j \beta \ell}-\Gamma e^{-j \beta \ell}\right)} Z_0=\frac{1+\Gamma e^{-2 j \beta \ell}}{1-\Gamma e^{-2 j \beta \ell}} Z_0
+\]</span> when <span class="math inline">\(Z_L\rightarrow 0\)</span> (short circuit)</li></ul><p><span class="math display">\[
+V=\sin,\ I=\cos, Z_{\text {in }}=j Z_0 \tan \beta \ell
+\]</span></p><p>when <span class="math inline">\(\ell=\lambda/2\)</span>，<span class="math inline">\(Z_{\text{in}}=Z_L\)</span> ; when <span class="math inline">\(\ell=\lambda / 4+n \lambda / 2\)</span>, <span class="math inline">\(Z_{\text{in}}=Z_0^2/Z_L\)</span></p><ul><li><p><strong>Connecting 2 transmission lines</strong> (Z0 &amp; Z1) <span class="math display">\[
+\Gamma=\frac{Z_1-Z_0}{Z_1+Z_0}
+\]</span> assuming that <span class="math display">\[
+V(z)=V_o^{+} T e^{-j \beta z} \quad \text { for } z&gt;0,\quad(\ V(z)=V_o^{+}\left(e^{-j \beta z}+\Gamma e^{j \beta z}\right), \quad z&lt;0\ )\\
+\Rightarrow T=1+\Gamma=\frac{2Z_L}{Z_L+Z_0}\\
+\text{Insertion Loss \ \ \ IL=}-20\log\abs{T}\text{ dB}
+\]</span></p><blockquote><p>dB and dBm: 10logP1/P0 dB. 1dBm=1mW. 10dBm=10mW, 20dBm=100mW …</p></blockquote></li></ul><h2 id="the-scattering-matrix">4.3 The Scattering Matrix</h2><p><span class="math display">\[
+\left[\begin{array}{c}
+V_1^{-} \\
+V_2^{-} \\
+\vdots \\
+V_N^{-}
+\end{array}\right]=\left[\begin{array}{cllc}
+S_{11} &amp; S_{12} &amp; \cdots &amp; S_{1 N} \\
+S_{21} &amp; &amp; &amp; \vdots \\
+S_{N 1} &amp; \cdots &amp; &amp; S_{N N} \\
+\vdots &amp; &amp; &amp;
+\end{array}\right]\left[\begin{array}{c}
+V_1^{+} \\
+V_2^{+} \\
+\vdots \\
+V_N^{+}
+\end{array}\right]
+\]</span></p><ul><li><strong>Example</strong>: Attenuator, 50Ohm impedance matching</li></ul><p><img src="assets/microwave/image-20260514200722375.png" alt="image-20260514200722375" style="zoom:33%;" /> <span class="math display">\[
+S_{11}=\left.\frac{V_1^{-}}{V_1^{+}}\right|_{V_2^{+}=0}=\left.\Gamma^{(1)}\right|_{V_2^{+}=0}=\left.\frac{Z_{\text {in }}^{(1)}-Z_0}{Z_{\text {in }}^{(1)}+Z_0}\right|_{Z_0 \text { on port } 2}\approx0
+\]</span></p><p><span class="math display">\[
+V_2^{-}=V_2=V_1\left(\frac{41.44}{41.44+8.56}\right)\left(\frac{50}{50+8.56}\right)=0.707 V_1\Rightarrow S_{21}=0.707
+\]</span></p><ul><li><strong>Deduction</strong> from impedance matrix: <span class="math display">\[
+\begin{align}
+V&amp;=V^++V^-\\
+I&amp;=I^+-I^-=V^+-V^-\text{ (assuming }Z_0=1\text{)}
+\end{align}
+\]</span></li></ul><p><span class="math display">\[
+\mathbf{ZI}=\mathbf{ZV}^+-\mathbf{ZV}^-=\mathbf{V}=\mathbf{V}^++\mathbf{V}^-\\
+\Rightarrow \mathbf{S}=(\mathbf{Z}+\mathbb{I})^{-1}(\mathbf{Z}-\mathbb{I})
+\]</span></p><p>it’s easy to prove that scattering matrix is symmetric for reciprocal networks(Sij=Sji)</p><ul><li><p><strong>lossless network</strong>: <span class="math display">\[
+P_{\mathrm{avg}}=\frac{1}{2} \operatorname{Re}\left\{\mathbf{V}^t\mathbf{I}^*\right\}=\frac{1}{2}\mathbf{V}^{+t}\mathbf{V}^{+*}-\frac{1}{2}\mathbf{V}^{-t}\mathbf{V}^{-*}
+\]</span></p><p><span class="math display">\[
+\Rightarrow \mathbf{S}^\text{T}\mathbf{S}^*=\mathbb{I}
+\]</span></p><p>in other words, S is Hermitian/Unitary</p></li><li><p><strong>Plane Transformation</strong></p></li></ul><p><span class="math display">\[
+V&#39;^+=e^{j\theta}V^+
+\Rightarrow \mathbf{S&#39;}=\text{diag}\{e^{-j\theta_1},...,e^{-j\theta_n}\}\mathbf{S}\text{diag}\{e^{-j\theta_1},...,e^{-j\theta_n}\}
+\]</span></p><ul><li><strong>Power Waves and Generalized Scattering Parameters</strong></li></ul><pre><code>[V0]--Z_L--[V1]</code></pre><p>Z_R任取。 <span class="math display">\[
+\left\{\begin{align}
+a=\frac{V+Z_R I}{2 \sqrt{R_R}}\\
+b=\frac{V-Z_R^* I}{2 \sqrt{R_R}}
+\end{align}\right.
+\]</span> where <span class="math inline">\(Z_R=R_R+j X_R\)</span></p><p>by adopting these two parameters, we get <span class="math display">\[
+P_L=\frac12\Re{VI^*}=\frac12\abs{a}^2-\frac12\abs{b}^2,\ \Gamma_p=\frac ba=\frac{Z_L-Z_R^*}{Z_L+Z_R}
+\]</span></p><ul><li>The <strong>VNA</strong></li></ul><p><img src="assets/microwave/image-20260518121352206.png" alt="image-20260518121352206" style="zoom:50%;" /></p><h2 id="dividers-and-filters">Dividers and Filters</h2><h3 id="dividers">Dividers</h3><ul><li>T-Junctions</li></ul><p>It can be proved that a three-port network cannot be simultaneously lossless, reciprocal, and matched at all ports.</p><ol type="1"><li>Assume it’s not reciprocal, then</li></ol><p><span class="math display">\[
+\mathbf{S}=\left[\begin{array}{ccc}
+0 &amp; S_{12} &amp; S_{13} \\
+S_{21} &amp; 0 &amp; S_{23} \\
+S_{31} &amp; S_{32} &amp; 0
+\end{array}\right]
+\]</span></p><p>satisfying <span class="math display">\[
+\begin{aligned}
+S_{31}^* S_{32} &amp; =0, \\
+S_{21}^* S_{23} &amp; =0, \\
+S_{12}^* S_{13} &amp; =0, \\
+\left|S_{12}\right|^2+\left|S_{13}\right|^2 &amp; =1, \\
+\left|S_{21}\right|^2+\left|S_{23}\right|^2 &amp; =1, \\
+\left|S_{31}\right|^2+\left|S_{32}\right|^2 &amp; =1 .
+\end{aligned}
+\]</span> This could be achieved by <span class="math display">\[
+\begin{aligned}
+&amp;S_{12}=S_{23}=S_{31}=0, \quad\left|S_{21}\right|=\left|S_{32}\right|=\left|S_{13}\right|=1,\\
+&amp;\text { or }\\
+&amp;S_{21}=S_{32}=S_{13}=0, \quad\left|S_{12}\right|=\left|S_{23}\right|=\left|S_{31}\right|=1 .
+\end{aligned} 
+\]</span> which is a circulator.</p><ol start="2" type="1"><li><p>Assume it’s not matched, then <span class="math display">\[\mathbf{S}_{ii}\]</span> could be a non-zero value.</p><p>it turns out to be <span class="math display">\[
+[S]=\left[\begin{array}{ccc}
+0 &amp; e^{j \theta} &amp; 0 \\
+e^{j \theta} &amp; 0 &amp; 0 \\
+0 &amp; 0 &amp; e^{j \phi}
+\end{array}\right]
+\]</span></p></li><li><p>T junction structure</p></li></ol><p><img src="assets/microwave/image-20260518131133060.png" alt="image-20260518131133060" /> <span class="math display">\[
+Y_{\text {in }}=j B+\frac{1}{Z_1}+\frac{1}{Z_2}=\frac{1}{Z_0}
+\]</span></p><h3 id="filters">Filters</h3><ul><li>Periodic Structure</li></ul><p><img src="assets/microwave/image-20260518131326602.png" alt="image-20260518131326602" style="zoom:50%;" /> <span class="math display">\[
+\left[\begin{array}{l}
+V_n \\
+I_n
+\end{array}\right]=\left[\begin{array}{ll}
+A &amp; B \\
+C &amp; D
+\end{array}\right]\left[\begin{array}{l}
+V_{n+1} \\
+I_{n+1}
+\end{array}\right]
+\]</span> where <span class="math display">\[
+\begin{aligned}
+{\left[\begin{array}{ll}
+A &amp; B \\
+C &amp; D
+\end{array}\right] } &amp; =\left[\begin{array}{cc}
+\cos \frac{\theta}{2} &amp; j \sin \frac{\theta}{2} \\
+j \sin \frac{\theta}{2} &amp; \cos \frac{\theta}{2}
+\end{array}\right]\left[\begin{array}{cc}
+1 &amp; 0 \\
+j b &amp; 1
+\end{array}\right]\left[\begin{array}{cc}
+\cos \frac{\theta}{2} &amp; j \sin \frac{\theta}{2} \\
+j \sin \frac{\theta}{2} &amp; \cos \frac{\theta}{2}
+\end{array}\right] \\
+&amp; =\left[\begin{array}{cc}
+\left(\cos \theta-\frac{b}{2} \sin \theta\right) &amp; j\left(\sin \theta+\frac{b}{2} \cos \theta-\frac{b}{2}\right) \\
+j\left(\sin \theta+\frac{b}{2} \cos \theta+\frac{b}{2}\right) &amp; \left(\cos \theta-\frac{b}{2} \sin \theta\right)
+\end{array}\right]
+\end{aligned}
+\]</span> (assume Z0=1, susceptance b is normalized to Z0) (this is a lossless transmission line)</p><p>For a wave propagating in the +z direction, we must have <span class="math display">\[
+\begin{aligned}
+V(z) &amp; =V(0) e^{-\gamma z} \\
+I(z) &amp; =I(0) e^{-\gamma z}
+\end{aligned}
+\]</span> put this into the previous linear equation, it becomes a <strong>homogeneous linear system</strong>. Check the determinant, we get <span class="math display">\[
+\cosh \gamma d=\cosh \alpha d \cos \beta d+j \sinh \alpha d \sin \beta d=\cos \theta-\frac{b}{2} \sin \theta
+\]</span> Since the right-hand side of (8.8) is purely real, we must have either α = 0 or β = 0.</p><p>whether it’s attenuated depends on whether <span class="math inline">\(\abs{\cos \theta-\frac{b}{2} \sin \theta}&gt;1\)</span> or not. The attenuated part is probably reflected.</p><blockquote><p>Thus, depending on the frequency and normalized susceptance values, the periodically loaded line will exhibit either passbands or stopbands, and so can be considered as a type of filter.</p></blockquote><p>Characteristic Impedance: (for symmetric unit cells) <span class="math display">\[
+Z_B = Z_0 \frac{V_{n+1}}{I_{n+1}} =\frac{ \pm B Z_0}{\sqrt{A^2-1}}
+\]</span></p><h2 id="noise-and-nonlinear-distortion">10.1 Noise and Nonlinear Distortion</h2><ul><li>Thermal noise:</li></ul><p><span class="math display">\[
+V_n=\sqrt{\frac{4 h f B R}{e^{h f / k T}-1}}=\sqrt{4kTBR}\Rightarrow P=kTB
+\]</span></p><p>Equivalent tenperature <span class="math display">\[
+T_e=\frac{N_o}{(G)k B}
+\]</span></p><ul><li>Y-factor</li></ul><p><span class="math display">\[
+\begin{aligned}
+&amp; N_1=G k T_1 B+G k T_e B, \\
+&amp; N_2=G k T_2 B+G k T_e B,
+\end{aligned}\\
+\]</span></p><p><span class="math display">\[
+Y=\frac{N_1}{N_2}=\frac{T_1+T_e}{T_2+T_e}&gt;1,\ Y=\frac{N_1}{N_2}=\frac{T_1+T_e}{T_2+T_e}&gt;1
+\]</span></p>
+
+    </div>
+  </main>
+</div>
+</body>
+</html>
