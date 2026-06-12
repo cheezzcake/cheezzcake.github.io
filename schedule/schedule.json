@@ -242,7 +242,7 @@
     "title": "史纲：看课 5/8",
     "type": "general",
     "date": "2026-06-12",
-    "completed": false
+    "completed": true
   },
   {
     "id": "review-20260610-ai-mock-1",
@@ -256,7 +256,7 @@
     "title": "光学：模卷 1/2",
     "type": "physics",
     "date": "2026-06-12",
-    "completed": false
+    "completed": true
   },
   {
     "id": "review-20260611-math-improper-integral",
