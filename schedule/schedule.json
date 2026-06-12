@@ -263,7 +263,7 @@
     "title": "高等数学：反常积分",
     "type": "math",
     "date": "2026-06-12",
-    "completed": false
+    "completed": true
   },
   {
     "id": "review-20260613-thermal-mock-1",
@@ -557,6 +557,6 @@
     "title": "AI引论：整理CS",
     "type": "general",
     "date": "2026-06-12",
-    "completed": false
+    "completed": true
   }
 ]
