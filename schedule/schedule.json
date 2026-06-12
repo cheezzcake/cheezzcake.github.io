@@ -558,5 +558,12 @@
     "type": "general",
     "date": "2026-06-12",
     "completed": true
+  },
+  {
+    "id": "0581b78e-2e07-482c-a867-40b3e5d33485",
+    "title": "光学：模卷3",
+    "type": "math",
+    "date": "2026-06-16",
+    "completed": false
   }
 ]
