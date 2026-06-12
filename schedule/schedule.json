@@ -214,7 +214,7 @@
     "title": "AI引论：CNN、三维重建",
     "type": "general",
     "date": "2026-06-11",
-    "completed": false
+    "completed": true
   },
   {
     "id": "review-20260610-optics-fourier-2",
@@ -248,7 +248,7 @@
     "id": "review-20260610-ai-mock-1",
     "title": "AI引论：模卷 1/2",
     "type": "general",
-    "date": "2026-06-12",
+    "date": "2026-06-13",
     "completed": false
   },
   {
@@ -269,7 +269,7 @@
     "id": "review-20260613-thermal-mock-1",
     "title": "热学：模卷 1/3",
     "type": "physics",
-    "date": "2026-06-12",
+    "date": "2026-06-18",
     "completed": false
   },
   {
@@ -283,7 +283,7 @@
     "id": "review-20260610-ai-mock-2",
     "title": "AI引论：模卷 2/2",
     "type": "general",
-    "date": "2026-06-13",
+    "date": "2026-06-14",
     "completed": false
   },
   {
@@ -304,7 +304,7 @@
     "id": "review-20260614-thermal-mock-2",
     "title": "热学：模卷 2/3",
     "type": "physics",
-    "date": "2026-06-18",
+    "date": "2026-06-19",
     "completed": false
   },
   {
@@ -325,21 +325,21 @@
     "id": "review-20260615-thermal-mock-3",
     "title": "热学：模卷 3/3",
     "type": "physics",
-    "date": "2026-06-19",
+    "date": "2026-06-20",
     "completed": false
   },
   {
     "id": "review-20260613-history-lecture-7",
     "title": "史纲：看课 7/8",
     "type": "general",
-    "date": "2026-06-14",
+    "date": "2026-06-19",
     "completed": false
   },
   {
     "id": "review-20260612-theory-stationary-1",
     "title": "理论物理基础II：定态解 1/2",
     "type": "physics",
-    "date": "2026-06-14",
+    "date": "2026-06-15",
     "completed": false
   },
   {
@@ -374,7 +374,7 @@
     "id": "review-20260613-theory-stationary-2",
     "title": "理论物理基础II：定态解 2/2",
     "type": "physics",
-    "date": "2026-06-15",
+    "date": "2026-06-16",
     "completed": false
   },
   {
@@ -402,7 +402,7 @@
     "id": "review-20260614-theory-formalism-1",
     "title": "理论物理基础II：形式理论 1/2",
     "type": "physics",
-    "date": "2026-06-16",
+    "date": "2026-06-17",
     "completed": false
   },
   {
@@ -430,7 +430,7 @@
     "id": "review-20260615-theory-formalism-2",
     "title": "理论物理基础II：形式理论 2/2",
     "type": "physics",
-    "date": "2026-06-17",
+    "date": "2026-06-18",
     "completed": false
   },
   {
@@ -544,5 +544,19 @@
     "type": "math",
     "date": "2026-06-10",
     "completed": true
+  },
+  {
+    "id": "a75e8f3a-a1a6-46a9-b661-6a14514ae77e",
+    "title": "AI引论：仿真、作业",
+    "type": "general",
+    "date": "2026-06-12",
+    "completed": true
+  },
+  {
+    "id": "a05d9efb-7152-4105-805d-b76128a9fb34",
+    "title": "AI引论：整理CS",
+    "type": "general",
+    "date": "2026-06-12",
+    "completed": false
   }
 ]
