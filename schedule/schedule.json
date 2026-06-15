@@ -347,14 +347,14 @@
     "title": "AI引论考试",
     "type": "exam",
     "date": "2026-06-15",
-    "completed": false
+    "completed": true
   },
   {
     "id": "review-20260613-math-param-improper-2",
     "title": "高等数学：含参反常积分 2/2",
     "type": "math",
     "date": "2026-06-15",
-    "completed": false
+    "completed": true
   },
   {
     "id": "review-20260616-thermal-paper",
