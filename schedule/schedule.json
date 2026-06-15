@@ -130,7 +130,7 @@
     "title": "史纲：看课 3/8",
     "type": "general",
     "date": "2026-06-14",
-    "completed": false
+    "completed": true
   },
   {
     "id": "review-20260611-thermal-second-law",
@@ -277,14 +277,14 @@
     "title": "理论物理基础II：薛定谔方程",
     "type": "physics",
     "date": "2026-06-14",
-    "completed": false
+    "completed": true
   },
   {
     "id": "review-20260610-ai-mock-2",
     "title": "AI引论：模卷 2/2",
     "type": "general",
     "date": "2026-06-14",
-    "completed": false
+    "completed": true
   },
   {
     "id": "review-20260611-optics-mock-2",
@@ -319,7 +319,7 @@
     "title": "高等数学：含参反常积分 1/2",
     "type": "math",
     "date": "2026-06-14",
-    "completed": false
+    "completed": true
   },
   {
     "id": "review-20260615-thermal-mock-3",
