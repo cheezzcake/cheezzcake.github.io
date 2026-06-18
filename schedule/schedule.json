@@ -340,7 +340,7 @@
     "title": "理论物理基础II：定态解 1/2",
     "type": "physics",
     "date": "2026-06-15",
-    "completed": false
+    "completed": true
   },
   {
     "id": "exam-20260615-ai",
@@ -361,56 +361,56 @@
     "title": "热学：论文",
     "type": "physics",
     "date": "2026-06-15",
-    "completed": false
+    "completed": true
   },
   {
     "id": "review-20260614-history-lecture-8",
     "title": "史纲：看课 8/8",
     "type": "general",
     "date": "2026-06-15",
-    "completed": false
+    "completed": true
   },
   {
     "id": "review-20260613-theory-stationary-2",
     "title": "理论物理基础II：定态解 2/2",
     "type": "physics",
     "date": "2026-06-16",
-    "completed": false
+    "completed": true
   },
   {
     "id": "review-20260613-math-fourier-1",
     "title": "高等数学：傅里叶变换 1/2",
     "type": "math",
     "date": "2026-06-16",
-    "completed": false
+    "completed": true
   },
   {
     "id": "review-20260614-math-fourier-2",
     "title": "高等数学：傅里叶变换 2/2",
     "type": "math",
     "date": "2026-06-16",
-    "completed": false
+    "completed": true
   },
   {
     "id": "review-20260615-history-mock-1",
     "title": "史纲：模卷 1/2",
     "type": "general",
     "date": "2026-06-16",
-    "completed": false
+    "completed": true
   },
   {
     "id": "review-20260614-theory-formalism-1",
     "title": "理论物理基础II：形式理论 1/2",
     "type": "physics",
     "date": "2026-06-17",
-    "completed": false
+    "completed": true
   },
   {
     "id": "exam-20260617-optics",
     "title": "光学考试",
     "type": "exam",
     "date": "2026-06-17",
-    "completed": false
+    "completed": true
   },
   {
     "id": "review-20260614-math-past-paper-1",
@@ -438,14 +438,14 @@
     "title": "高等数学考试",
     "type": "exam",
     "date": "2026-06-18",
-    "completed": false
+    "completed": true
   },
   {
     "id": "review-20260615-math-past-paper-2",
     "title": "高等数学：往年题 2/2",
     "type": "math",
     "date": "2026-06-17",
-    "completed": false
+    "completed": true
   },
   {
     "id": "review-20260616-theory-3d-1",
@@ -564,6 +564,6 @@
     "title": "光学：模卷3",
     "type": "math",
     "date": "2026-06-16",
-    "completed": false
+    "completed": true
   }
 ]
